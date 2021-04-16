@@ -155,6 +155,8 @@ protected:
 	bool			m_bFireSingleShot;
 	//режимы стрельбы
 	bool			m_bHasDifferentFireModes;
+        bool m_bcartridge_in_the_barrel;
+	bool					m_bGrenadeMode;
 	xr_vector<int>	m_aFireModes;
 	int				m_iCurFireMode;
 	string16		m_sCurFireMode;
