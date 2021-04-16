@@ -182,6 +182,9 @@ void CWeaponMagazined::Load	(LPCSTR section)
 	m_fire_zoomout_time = READ_IF_EXISTS( pSettings, r_u32, section, "fire_zoomout_time", u32(-1) );
 
 	m_str_count_tmpl = READ_IF_EXISTS( pSettings, r_string, "features", "wpn_magazined_str_count_tmpl", "{AE}/{AC}" );
+	
+	if (pSettings->line_exist(section, "cartridge_in_the_barrel"))
+              m_bcartridge_in_the_barrel = pSettings->r_bool(section, "cartridge_in_the_barrel");
 }
 
 void CWeaponMagazined::FireStart		()
@@ -682,11 +685,29 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 	switch(state) 
 	{
 		case eReload:
-		  ReloadMagazine();
-		  HUD_SOUND::StopSound( sndReload );
-		  HUD_SOUND::StopSound(sndReloadPartly);
-		  SwitchState( eIdle );
-		  break;	// End of reload animation
+		                if (!m_bGrenadeMode)
+		                {
+                                    if (!m_magazine.empty() || !m_bcartridge_in_the_barrel)
+									{
+			                            ReloadMagazine();
+		                                HUD_SOUND::StopSound( sndReload );
+		                                HUD_SOUND::StopSound(sndReloadPartly);
+								    }
+                                    else
+		                    {
+                                --iMagazineSize;
+			                    ReloadMagazine();
+		                        HUD_SOUND::StopSound( sndReload );
+		                        HUD_SOUND::StopSound(sndReloadPartly);
+                                ++iMagazineSize;
+							}
+		                }
+		                else
+			            {
+			                ReloadMagazine();
+		                    HUD_SOUND::StopSound( sndReload );
+		                    HUD_SOUND::StopSound(sndReloadPartly);
+			            }
 		case eHiding:	SwitchState(eHidden);   break;	// End of Hide
 		case eShowing:	SwitchState(eIdle);		break;	// End of Show
 		case eIdle:		switch2_Idle();			break;  // Keep showing idle
