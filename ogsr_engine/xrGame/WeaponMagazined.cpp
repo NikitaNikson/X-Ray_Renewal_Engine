@@ -183,6 +183,8 @@ void CWeaponMagazined::Load	(LPCSTR section)
 
 	m_str_count_tmpl = READ_IF_EXISTS( pSettings, r_string, "features", "wpn_magazined_str_count_tmpl", "{AE}/{AC}" );
 	
+	m_bcartridge_in_the_barrel = false;
+	
 	if (pSettings->line_exist(section, "cartridge_in_the_barrel"))
               m_bcartridge_in_the_barrel = pSettings->r_bool(section, "cartridge_in_the_barrel");
 }
@@ -685,8 +687,6 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 	switch(state) 
 	{
 		case eReload:
-		                if (!m_bGrenadeMode)
-		                {
                                     if (!m_magazine.empty() || !m_bcartridge_in_the_barrel)
 									{
 			                            ReloadMagazine();
@@ -702,12 +702,7 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
                                 ++iMagazineSize;
 							}
 		                }
-		                else
-			            {
-			                ReloadMagazine();
-		                    HUD_SOUND::StopSound( sndReload );
-		                    HUD_SOUND::StopSound(sndReloadPartly);
-			            }
+                break;
 		case eHiding:	SwitchState(eHidden);   break;	// End of Hide
 		case eShowing:	SwitchState(eIdle);		break;	// End of Show
 		case eIdle:		switch2_Idle();			break;  // Keep showing idle
