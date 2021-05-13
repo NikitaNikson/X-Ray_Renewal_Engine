@@ -785,7 +785,7 @@ void		xrRender_initconsole	()
 
 	Fvector	tw_min,tw_max;
 	
-#if RENDER == R_R2
+#if RENDER == R_R2 || RENDER == R_R1
 	// Texture manager	
 	CMD4(CCC_Integer, "texture_lod", &psTextureLOD, 0, 4);
 #endif
