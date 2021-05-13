@@ -1232,6 +1232,10 @@ BOOL CWeapon::CheckForMisfire	()
 	float mp = GetConditionMisfireProbability();
 	if(rnd < mp)
 	{
+		if (iAmmoElapsed == 0)
+		{ //--> Если в магазине 0 патронов, нехуй клинить оружию
+			return FALSE;
+		}
 		FireEnd();
 
 		bMisfire = true;
