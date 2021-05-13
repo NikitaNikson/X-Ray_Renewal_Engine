@@ -6,20 +6,23 @@
 #include "physic_item.h"
 #include "ActorEffector.h"
 #include "../xr_3da/IGame_Persistent.h"
+#include "Weapon.h"
+#include "Actor.h"
+#include "ActorCondition.h"
 
 player_hud* g_player_hud = nullptr;
 Fvector _ancor_pos;
 Fvector _wpn_root_pos;
 
 // --#SM+# Begin--
-const float PITCH_OFFSET_R		= 0.0f;		// Насколько сильно ствол смещается вбок (влево) при вертикальных поворотах камеры
-const float PITCH_OFFSET_N		= 0.0f;		// Насколько сильно ствол поднимается\опускается при вертикальных поворотах камеры
-const float PITCH_OFFSET_D		= 0.02f;	// Насколько сильно ствол приближается\отдаляется при вертикальных поворотах камеры
-const float PITCH_LOW_LIMIT		= -PI;		// Минимальное значение pitch при использовании совместно с PITCH_OFFSET_N
-const float ORIGIN_OFFSET		= -0.05f;	// Фактор влияния инерции на положение ствола (чем меньше, тем масштабней инерция)
-const float ORIGIN_OFFSET_AIM	= -0.03f;	// (Для прицеливания)
-const float TENDTO_SPEED		= 5.f;		// Скорость нормализации положения ствола
-const float TENDTO_SPEED_AIM	= 8.f;		// (Для прицеливания)
+constexpr float PITCH_OFFSET_R = 0.0f;		// Насколько сильно ствол смещается вбок (влево) при вертикальных поворотах камеры
+constexpr float PITCH_OFFSET_N = 0.0f;		// Насколько сильно ствол поднимается\опускается при вертикальных поворотах камеры
+constexpr float PITCH_OFFSET_D = 0.02f;	// Насколько сильно ствол приближается\отдаляется при вертикальных поворотах камеры
+constexpr float PITCH_LOW_LIMIT = -PI;		// Минимальное значение pitch при использовании совместно с PITCH_OFFSET_N
+constexpr float ORIGIN_OFFSET = -0.05f;	// Фактор влияния инерции на положение ствола (чем меньше, тем масштабней инерция)
+constexpr float ORIGIN_OFFSET_AIM = -0.03f;	// (Для прицеливания)
+constexpr float TENDTO_SPEED = 5.f;		// Скорость нормализации положения ствола
+constexpr float TENDTO_SPEED_AIM = 8.f;		// (Для прицеливания)
 // --#SM+# End--
 
 player_hud_motion* player_hud_motion_container::find_motion(const shared_str& name)
@@ -37,38 +40,43 @@ player_hud_motion* player_hud_motion_container::find_motion(const shared_str& na
 
 void player_hud_motion_container::load(attachable_hud_item* parent, IKinematicsAnimated* model, IKinematicsAnimated* animatedHudItem, const shared_str& sect)
 {
-	CInifile::Sect& _sect = pSettings->r_section(sect);
-	auto _b = _sect.Data.cbegin();
-	auto _e = _sect.Data.cend();
-	player_hud_motion* pm = nullptr;
-
 	string512 buff;
 	MotionID motion_ID;
 
-	for (; _b != _e; ++_b)
+	for (const auto& [name, anm] : pSettings->r_section(sect).Data)
 	{
-		if (strstr(_b->first.c_str(), "anm_") == _b->first.c_str() ||
-			strstr(_b->first.c_str(), "anim_") == _b->first.c_str())
+		if (
+			(strstr(name.c_str(), "anm_") == name.c_str() || strstr(name.c_str(), "anim_") == name.c_str())
+			&& !strstr(name.c_str(), "_speed_k") && !strstr(name.c_str(), "_stop_k") && !strstr(name.c_str(), "_effector")
+			)
 		{
-			const shared_str& anm = _b->second;
-			m_anims.resize(m_anims.size() + 1);
-			pm = &m_anims.back();
+			player_hud_motion* pm = &m_anims.emplace_back();
 			// base and alias name
-			pm->m_alias_name = _b->first;
+			pm->m_alias_name = name;
 
-			if (_GetItemCount(anm.c_str()) == 1)
+			if (parent->m_has_separated_hands)
 			{
-				pm->m_base_name = anm;
-				pm->m_additional_name = anm;
+				if (_GetItemCount(anm.c_str()) == 1)
+				{
+					pm->m_base_name = anm;
+					pm->m_additional_name = anm;
+				}
+				else
+				{
+					R_ASSERT2(_GetItemCount(anm.c_str()) == 2, anm.c_str());
+					string512 str_item;
+					_GetItem(anm.c_str(), 0, str_item);
+					pm->m_base_name = str_item;
+
+					_GetItem(anm.c_str(), 1, str_item);
+					pm->m_additional_name = str_item;
+				}
 			}
 			else
 			{
-				R_ASSERT2(_GetItemCount(anm.c_str()) == 2, anm.c_str());
 				string512 str_item;
 				_GetItem(anm.c_str(), 0, str_item);
 				pm->m_base_name = str_item;
-
-				_GetItem(anm.c_str(), 1, str_item);
 				pm->m_additional_name = str_item;
 			}
 
@@ -86,29 +94,50 @@ void player_hud_motion_container::load(attachable_hud_item* parent, IKinematicsA
 					motion_ID = model->ID_Cycle_Safe(buff);
 					if (motion_ID.valid())
 					{
-						pm->m_animations.resize(pm->m_animations.size() + 1);
-						pm->m_animations.back().mid = motion_ID;
-						pm->m_animations.back().name = buff;
+						auto& Anim = pm->m_animations.emplace_back();
+						Anim.mid = motion_ID;
+						Anim.name = buff;
 #ifdef DEBUG
-//						Msg(" alias=[%s] base=[%s] name=[%s]",pm->m_alias_name.c_str(), pm->m_base_name.c_str(), buff);
-#endif // #ifdef DEBUG
+						//						Msg(" alias=[%s] base=[%s] name=[%s]",pm->m_alias_name.c_str(), pm->m_base_name.c_str(), buff);
+#endif
 					}
 				}
 				else if (animatedHudItem && !parent->m_has_separated_hands)
 				{
 					motion_ID = animatedHudItem->ID_Cycle_Safe(buff);
+
 					if (motion_ID.valid())
 					{
-						pm->m_animations.resize(pm->m_animations.size() + 1);
-						pm->m_animations.back().mid = motion_ID;
-						pm->m_animations.back().name = buff;
+						auto& Anim = pm->m_animations.emplace_back();
+						Anim.mid = motion_ID;
+						Anim.name = buff;
+
+						string_path speed_param;
+						xr_strconcat(speed_param, name.c_str(), "_speed_k");
+						if (pSettings->line_exist(sect, speed_param)) {
+							const float k = pSettings->r_float(sect, speed_param);
+							if (!fsimilar(k, 1.f))
+								Anim.speed_k = k;
+						}
+
+						string_path stop_param;
+						xr_strconcat(stop_param, name.c_str(), "_stop_k");
+						if (pSettings->line_exist(sect, stop_param)) {
+							const float k = pSettings->r_float(sect, stop_param);
+							if (k < 1.f)
+								Anim.stop_k = k;
+						}
+
+						string_path eff_param;
+						Anim.eff_name = READ_IF_EXISTS(pSettings, r_string, sect, xr_strconcat(eff_param, name.c_str(), "_effector"), nullptr);
+
 #ifdef DEBUG
-//						Msg(" alias=[%s] base=[%s] name=[%s]",pm->m_alias_name.c_str(), pm->m_base_name.c_str(), buff);
-#endif // #ifdef DEBUG
+						//						Msg(" alias=[%s] base=[%s] name=[%s]",pm->m_alias_name.c_str(), pm->m_base_name.c_str(), buff);
+#endif
 					}
 				}
 			}
-			R_ASSERT2(pm->m_animations.size(), make_string("motion not found [%s]", pm->m_base_name.c_str()).c_str());
+			ASSERT_FMT(pm->m_animations.size(), "[%s] motion [%s](%s) not found in section [%s]", __FUNCTION__, pm->m_base_name.c_str(), name.c_str(), sect.c_str());
 		}
 	}
 }
@@ -117,14 +146,12 @@ Fvector& attachable_hud_item::hands_attach_pos() { return m_measures.m_hands_att
 Fvector& attachable_hud_item::hands_attach_rot() { return m_measures.m_hands_attach[1]; }
 Fvector& attachable_hud_item::hands_offset_pos()
 {
-	u8 idx = m_parent_hud_item->GetCurrentHudOffsetIdx();
-	return m_measures.m_hands_offset[0][idx];
+	return m_measures.m_hands_offset[hud_item_measures::m_hands_offset_pos][m_parent_hud_item->GetCurrentHudOffsetIdx()];
 }
 
 Fvector& attachable_hud_item::hands_offset_rot()
 {
-	u8 idx = m_parent_hud_item->GetCurrentHudOffsetIdx();
-	return m_measures.m_hands_offset[1][idx];
+	return m_measures.m_hands_offset[hud_item_measures::m_hands_offset_rot][m_parent_hud_item->GetCurrentHudOffsetIdx()];
 }
 
 void attachable_hud_item::set_bone_visible(const shared_str& bone_name, BOOL bVisibility, BOOL bSilent)
@@ -136,7 +163,7 @@ void attachable_hud_item::set_bone_visible(const shared_str& bone_name, BOOL bVi
 	{
 		if (bSilent)
 			return;
-		R_ASSERT2(0, make_string("model [%s] has no bone [%s]", m_visual_name.c_str(), bone_name.c_str()).c_str());
+		FATAL("model [%s] has no bone [%s]", m_visual_name.c_str(), bone_name.c_str());
 	}
 	bVisibleNow = m_model->LL_GetBoneVisible(bone_id);
 	if (bVisibleNow != bVisibility)
@@ -230,9 +257,9 @@ void attachable_hud_item::setup_firedeps(firedeps& fd)
 	}
 }
 
-bool attachable_hud_item::need_renderable() 
-{ 
-	return m_parent_hud_item->need_renderable(); 
+bool attachable_hud_item::need_renderable()
+{
+	return m_parent_hud_item->need_renderable();
 }
 
 void attachable_hud_item::render()
@@ -243,14 +270,14 @@ void attachable_hud_item::render()
 	m_parent_hud_item->render_hud_mode();
 }
 
-bool attachable_hud_item::render_item_ui_query() 
-{ 
-	return m_parent_hud_item->render_item_3d_ui_query(); 
+bool attachable_hud_item::render_item_ui_query()
+{
+	return m_parent_hud_item->render_item_3d_ui_query();
 }
 
 void attachable_hud_item::render_item_ui()
-{ 
-	m_parent_hud_item->render_item_3d_ui(); 
+{
+	m_parent_hud_item->render_item_3d_ui();
 }
 
 void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
@@ -263,12 +290,12 @@ void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
 	strconcat(sizeof(val_name), val_name, "hands_position", _prefix);
 	if (is_16x9 && !pSettings->line_exist(sect_name, val_name))
 		xr_strcpy(val_name, "hands_position");
-	m_hands_attach[0] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector().set(0.f, 0.f, 0.f));
+	m_hands_attach[0] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector{});
 
 	strconcat(sizeof(val_name), val_name, "hands_orientation", _prefix);
 	if (is_16x9 && !pSettings->line_exist(sect_name, val_name))
 		xr_strcpy(val_name, "hands_orientation");
-	m_hands_attach[1] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector().set(0.f, 0.f, 0.f));
+	m_hands_attach[1] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector{});
 
 	if (!pSettings->line_exist(sect_name, "item_position") && pSettings->line_exist(sect_name, "position"))
 		m_item_attach[0] = pSettings->r_fvector3(sect_name, "position");
@@ -281,7 +308,11 @@ void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
 		m_item_attach[1] = pSettings->r_fvector3(sect_name, "item_orientation");
 
 	shared_str bone_name;
-	bool useCopFirePoint = READ_IF_EXISTS(pSettings, r_bool, sect_name, "use_cop_fire_point", false);
+	bool useCopFirePoint;
+	if (pSettings->line_exist(sect_name, "use_cop_fire_point"))
+		useCopFirePoint = !!pSettings->r_bool(sect_name, "use_cop_fire_point");
+	else
+		useCopFirePoint = !!pSettings->line_exist(sect_name, "item_visual");
 
 	if (!useCopFirePoint) // shoc configs
 	{
@@ -355,40 +386,68 @@ void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
 			m_shell_point_offset.set(0.f, 0.f, 0.f);
 	}
 
-	m_hands_offset[0][0].set(0.f, 0.f, 0.f);
-	m_hands_offset[1][0].set(0.f, 0.f, 0.f);
-
 	strconcat(sizeof(val_name), val_name, "aim_hud_offset_pos", _prefix);
 	if (is_16x9 && !pSettings->line_exist(sect_name, val_name))
 		xr_strcpy(val_name, "aim_hud_offset_pos");
 	if (!pSettings->line_exist(sect_name, val_name) && pSettings->line_exist(sect_name, "zoom_offset"))
-		m_hands_offset[0][1] = pSettings->r_fvector3(sect_name, "zoom_offset");
+		m_hands_offset[m_hands_offset_pos][m_hands_offset_type_aim] = pSettings->r_fvector3(sect_name, "zoom_offset");
 	else
-		m_hands_offset[0][1] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector().set(0.f, 0.f, 0.f));
+		m_hands_offset[m_hands_offset_pos][m_hands_offset_type_aim] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector{});
 
 	strconcat(sizeof(val_name), val_name, "aim_hud_offset_rot", _prefix);
 	if (is_16x9 && !pSettings->line_exist(sect_name, val_name))
 		xr_strcpy(val_name, "aim_hud_offset_rot");
 	if (!pSettings->line_exist(sect_name, val_name) && pSettings->line_exist(sect_name, "zoom_rotate_x") && pSettings->line_exist(sect_name, "zoom_rotate_y"))
-		m_hands_offset[1][1] = Fvector().set(pSettings->r_float(sect_name, "zoom_rotate_x"), pSettings->r_float(sect_name, "zoom_rotate_y"), 0.f);
+		m_hands_offset[m_hands_offset_rot][m_hands_offset_type_aim] = Fvector().set(pSettings->r_float(sect_name, "zoom_rotate_x"), pSettings->r_float(sect_name, "zoom_rotate_y"), 0.f);
 	else
-		m_hands_offset[1][1] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector().set(0.f, 0.f, 0.f));
+		m_hands_offset[m_hands_offset_rot][m_hands_offset_type_aim] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector{});
 
 	strconcat(sizeof(val_name), val_name, "gl_hud_offset_pos", _prefix);
 	if (is_16x9 && !pSettings->line_exist(sect_name, val_name))
 		xr_strcpy(val_name, "gl_hud_offset_pos");
 	if (!pSettings->line_exist(sect_name, val_name) && pSettings->line_exist(sect_name, "grenade_zoom_offset"))
-		m_hands_offset[0][2] = pSettings->r_fvector3(sect_name, "grenade_zoom_offset");
+		m_hands_offset[m_hands_offset_pos][m_hands_offset_type_gl] = pSettings->r_fvector3(sect_name, "grenade_zoom_offset");
 	else
-		m_hands_offset[0][2] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector().set(0.f, 0.f, 0.f));
+		m_hands_offset[m_hands_offset_pos][m_hands_offset_type_gl] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector{});
 
 	strconcat(sizeof(val_name), val_name, "gl_hud_offset_rot", _prefix);
 	if (is_16x9 && !pSettings->line_exist(sect_name, val_name))
 		xr_strcpy(val_name, "gl_hud_offset_rot");
 	if (!pSettings->line_exist(sect_name, val_name) && pSettings->line_exist(sect_name, "grenade_zoom_rotate_x") && pSettings->line_exist(sect_name, "grenade_zoom_rotate_y"))
-		m_hands_offset[1][2] = Fvector().set(pSettings->r_float(sect_name, "grenade_zoom_rotate_x"), pSettings->r_float(sect_name, "grenade_zoom_rotate_y"), 0.f);
+		m_hands_offset[m_hands_offset_rot][m_hands_offset_type_gl] = Fvector().set(pSettings->r_float(sect_name, "grenade_zoom_rotate_x"), pSettings->r_float(sect_name, "grenade_zoom_rotate_y"), 0.f);
 	else
-		m_hands_offset[1][2] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector().set(0.f, 0.f, 0.f));
+		m_hands_offset[m_hands_offset_rot][m_hands_offset_type_gl] = READ_IF_EXISTS(pSettings, r_fvector3, sect_name, val_name, Fvector{});
+
+
+	//ОГСР-специфичные параметры
+	if (pSettings->line_exist(sect_name, "scope_zoom_offset"))
+		m_hands_offset[m_hands_offset_pos][m_hands_offset_type_aim_scope] = pSettings->r_fvector3(sect_name, "scope_zoom_offset");
+
+	if (pSettings->line_exist(sect_name, "scope_zoom_rotate_x") && pSettings->line_exist(sect_name, "scope_zoom_rotate_y"))
+		m_hands_offset[m_hands_offset_rot][m_hands_offset_type_aim_scope] = Fvector().set(pSettings->r_float(sect_name, "scope_zoom_rotate_x"), pSettings->r_float(sect_name, "scope_zoom_rotate_y"), 0.f);
+
+	if (pSettings->line_exist(sect_name, "scope_grenade_zoom_offset"))
+		m_hands_offset[m_hands_offset_pos][m_hands_offset_type_gl_scope] = pSettings->r_fvector3(sect_name, "scope_grenade_zoom_offset");
+
+	if (pSettings->line_exist(sect_name, "scope_grenade_zoom_rotate_x") && pSettings->line_exist(sect_name, "scope_grenade_zoom_rotate_y"))
+		m_hands_offset[m_hands_offset_rot][m_hands_offset_type_gl_scope] = Fvector().set(pSettings->r_float(sect_name, "scope_grenade_zoom_rotate_x"), pSettings->r_float(sect_name, "scope_grenade_zoom_rotate_y"), 0.f);
+
+	if (pSettings->line_exist(sect_name, "grenade_normal_zoom_offset"))
+		m_hands_offset[m_hands_offset_pos][m_hands_offset_type_aim_gl_normal] = pSettings->r_fvector3(sect_name, "grenade_normal_zoom_offset");
+	else
+		m_hands_offset[m_hands_offset_pos][m_hands_offset_type_aim_gl_normal] = m_hands_offset[m_hands_offset_pos][m_hands_offset_type_aim];
+
+	if (pSettings->line_exist(sect_name, "grenade_normal_zoom_rotate_x") && pSettings->line_exist(sect_name, "grenade_normal_zoom_rotate_y"))
+		m_hands_offset[m_hands_offset_rot][m_hands_offset_type_aim_gl_normal] = Fvector().set(pSettings->r_float(sect_name, "grenade_normal_zoom_rotate_x"), pSettings->r_float(sect_name, "grenade_normal_zoom_rotate_y"), 0.f);
+	else
+		m_hands_offset[m_hands_offset_rot][m_hands_offset_type_aim_gl_normal] = m_hands_offset[m_hands_offset_rot][m_hands_offset_type_aim];
+
+	if (pSettings->line_exist(sect_name, "scope_grenade_normal_zoom_offset"))
+		m_hands_offset[m_hands_offset_pos][m_hands_offset_type_gl_normal_scope] = pSettings->r_fvector3(sect_name, "scope_grenade_normal_zoom_offset");
+
+	if (pSettings->line_exist(sect_name, "scope_grenade_normal_zoom_rotate_x") && pSettings->line_exist(sect_name, "scope_grenade_normal_zoom_rotate_y"))
+		m_hands_offset[m_hands_offset_rot][m_hands_offset_type_gl_normal_scope] = Fvector().set(pSettings->r_float(sect_name, "scope_grenade_normal_zoom_rotate_x"), pSettings->r_float(sect_name, "scope_grenade_normal_zoom_rotate_y"), 0.f);
+
 
 	if (useCopFirePoint) // cop configs
 	{
@@ -409,9 +468,9 @@ void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
 	m_inertion_params.m_pitch_low_limit = READ_IF_EXISTS(pSettings, r_float, sect_name, "pitch_offset_up_low_limit", PITCH_LOW_LIMIT);
 
 	m_inertion_params.m_origin_offset = READ_IF_EXISTS(pSettings, r_float, sect_name, "inertion_origin_offset", ORIGIN_OFFSET);
-	m_inertion_params.m_origin_offset_aim = READ_IF_EXISTS(pSettings, r_float, sect_name, "inertion_origin_aim_offset", ORIGIN_OFFSET_AIM);
+	m_inertion_params.m_origin_offset_aim = READ_IF_EXISTS(pSettings, r_float, sect_name, "inertion_zoom_origin_offset", ORIGIN_OFFSET_AIM);
 	m_inertion_params.m_tendto_speed = READ_IF_EXISTS(pSettings, r_float, sect_name, "inertion_tendto_speed", TENDTO_SPEED);
-	m_inertion_params.m_tendto_speed_aim = READ_IF_EXISTS(pSettings, r_float, sect_name, "inertion_tendto_aim_speed", TENDTO_SPEED_AIM);
+	m_inertion_params.m_tendto_speed_aim = READ_IF_EXISTS(pSettings, r_float, sect_name, "inertion_zoom_tendto_speed", TENDTO_SPEED_AIM);
 	//--#SM+# End--
 }
 
@@ -446,26 +505,21 @@ void attachable_hud_item::load(const shared_str& sect_name)
 
 u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, const CMotionDef*& md, u8& rnd_idx, bool randomAnim)
 {
-	float speed = 1.f;
-
 	R_ASSERT(strstr(anm_name_b.c_str(), "anm_") == anm_name_b.c_str() || strstr(anm_name_b.c_str(), "anim_") == anm_name_b.c_str());
 	string256 anim_name_r;
 	bool is_16x9 = UI()->is_widescreen();
 	xr_sprintf(anim_name_r, "%s%s", anm_name_b.c_str(), ((m_attach_place_idx == 1) && is_16x9) ? "_16x9" : "");
 
 	player_hud_motion* anm = m_hand_motions.find_motion(anim_name_r);
-	R_ASSERT2(
-		anm, make_string("model [%s] has no motion alias defined [%s]", m_visual_name.c_str(), anim_name_r).c_str());
-	R_ASSERT2(anm->m_animations.size(), make_string("model [%s] has no motion defined in motion_alias [%s]",
-											m_visual_name.c_str(), anim_name_r)
-											.c_str());
+	ASSERT_FMT(anm, "model [%s] has no motion alias defined [%s]", m_visual_name.c_str(), anim_name_r);
+	ASSERT_FMT(anm->m_animations.size(), "model [%s] has no motion defined in motion_alias [%s]", m_visual_name.c_str(), anim_name_r);
 
 	if (randomAnim)
 		rnd_idx = (u8)Random.randI(anm->m_animations.size());
 	const motion_descr& M = anm->m_animations[rnd_idx];
 
 	IKinematicsAnimated* ka = m_model->dcast_PKinematicsAnimated();
-	u32 ret = g_player_hud->anim_play(m_attach_place_idx, M.mid, bMixIn, md, speed, ka);
+	u32 ret = g_player_hud->anim_play(m_attach_place_idx, M, bMixIn, md, M.speed_k, ka);
 
 	if (ka)
 	{
@@ -496,7 +550,7 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 		{
 			CBlend* B = ka->PlayCycle(pid, M2, bMixIn);
 			R_ASSERT(B);
-			B->speed *= speed;
+			B->speed *= M.speed_k;
 		}
 
 		m_model->CalculateBones_Invalidate();
@@ -510,15 +564,12 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 		CActor* current_actor = smart_cast<CActor*>(Level().CurrentControlEntity());
 		VERIFY(current_actor);
 
-		string_path ce_path;
-		string_path anm_name;
-		strconcat(sizeof(anm_name), anm_name, "camera_effects\\weapon\\", M.name.c_str(), ".anm");
+		string_path ce_path, anm_name;
+		xr_strconcat(anm_name, "camera_effects\\weapon\\", M.eff_name ? M.eff_name : M.name.c_str(), ".anm");
 		if (FS.exist(ce_path, "$game_anims$", anm_name))
 		{
-			CEffectorCam* ec = current_actor->Cameras().GetCamEffector(eCEWeaponAction);
-			if (ec)
-				current_actor->Cameras().RemoveCamEffector(eCEWeaponAction);
-			
+			current_actor->Cameras().RemoveCamEffector(eCEWeaponAction);
+
 			CAnimatorCamEffector* e = xr_new<CAnimatorCamEffector>();
 			e->SetType(eCEWeaponAction);
 			e->SetHudAffect(false);
@@ -532,10 +583,9 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 
 player_hud::player_hud()
 {
-	m_model = nullptr;
-	m_attached_items[0] = nullptr;
-	m_attached_items[1] = nullptr;
 	m_transform.identity();
+	if (Core.Features.test(xrCore::Feature::wpn_bobbing))
+		m_bobbing = xr_new<CWeaponBobbing>();
 }
 
 player_hud::~player_hud()
@@ -555,6 +605,8 @@ player_hud::~player_hud()
 		xr_delete(a);
 	}
 	m_pool.clear();
+	if (m_bobbing)
+		xr_delete(m_bobbing);
 }
 
 void player_hud::load(const shared_str& player_hud_sect)
@@ -657,17 +709,15 @@ void player_hud::render_hud()
 
 u32 player_hud::motion_length(const shared_str& anim_name, const shared_str& hud_name, const CMotionDef*& md)
 {
-	float speed = 1.f;
 	attachable_hud_item* pi = create_hud_item(hud_name);
 	player_hud_motion* pm = pi->m_hand_motions.find_motion(anim_name);
 	if (!pm)
 		return 100; // ms TEMPORARY
-	R_ASSERT2(pm,
-		make_string("hudItem model [%s] has no motion with alias [%s]", hud_name.c_str(), anim_name.c_str()).c_str());
-	return motion_length(pm->m_animations[0].mid, md, speed, smart_cast<IKinematicsAnimated*>(pi->m_model), pi);
+	ASSERT_FMT(pm, "hudItem model [%s] has no motion with alias [%s]", hud_name.c_str(), anim_name.c_str());
+	return motion_length(pm->m_animations[0], md, pm->m_animations[0].speed_k, smart_cast<IKinematicsAnimated*>(pi->m_model), pi);
 }
 
-u32 player_hud::motion_length(const MotionID& M, const CMotionDef*& md, float speed, IKinematicsAnimated* itemModel, attachable_hud_item* pi)
+u32 player_hud::motion_length(const motion_descr& M, const CMotionDef*& md, float speed, IKinematicsAnimated* itemModel, attachable_hud_item* pi)
 {
 	bool hasHands;
 	if (pi)
@@ -678,12 +728,12 @@ u32 player_hud::motion_length(const MotionID& M, const CMotionDef*& md, float sp
 	IKinematicsAnimated* model = m_model;
 	if ((!model || !hasHands) && itemModel)
 		model = itemModel;
-	md = model->LL_GetMotionDef(M);
+	md = model->LL_GetMotionDef(M.mid);
 	VERIFY(md);
 	if (md->flags & esmStopAtEnd)
 	{
-		CMotion* motion = model->LL_GetRootMotion(M);
-		return iFloor(0.5f + 1000.f * motion->GetLength() / (md->speed * speed));
+		CMotion* motion = model->LL_GetRootMotion(M.mid);
+		return iFloor(0.5f + 1000.f * motion->GetLength() / (md->Speed() * speed) * M.stop_k);
 	}
 	return 0;
 }
@@ -704,7 +754,7 @@ void player_hud::update(const Fmatrix& cam_trans)
 
 	ypr.mul(PI / 180.f);
 	m_attach_offset.setHPB(ypr.x, ypr.y, ypr.z);
-	
+
 	Fvector tmp;
 	if (m_attached_items[0])
 		tmp = m_attached_items[0]->hands_attach_pos();
@@ -714,6 +764,10 @@ void player_hud::update(const Fmatrix& cam_trans)
 		tmp = Fvector().set(0.f, 0.f, 0.f);
 
 	m_attach_offset.translate_over(tmp);
+
+	if (bobbing_allowed())
+		m_bobbing->Update(m_attach_offset, m_attached_items[0]);
+
 	m_transform.mul(trans, m_attach_offset);
 	// insert inertion here
 
@@ -731,7 +785,7 @@ void player_hud::update(const Fmatrix& cam_trans)
 		m_attached_items[1]->update(true);
 }
 
-u32 player_hud::anim_play(u16 part, const MotionID& M, BOOL bMixIn, const CMotionDef*& md, float speed, IKinematicsAnimated* itemModel)
+u32 player_hud::anim_play(u16 part, const motion_descr& M, BOOL bMixIn, const CMotionDef*& md, float speed, IKinematicsAnimated* itemModel)
 {
 	bool hasHands = (attached_item(0) && attached_item(0)->m_has_separated_hands);
 	if (m_model && hasHands)
@@ -745,7 +799,7 @@ u32 player_hud::anim_play(u16 part, const MotionID& M, BOOL bMixIn, const CMotio
 		{
 			if (pid == 0 || pid == part_id || part_id == u16(-1))
 			{
-				CBlend* B = m_model->PlayCycle(pid, M, bMixIn);
+				CBlend* B = m_model->PlayCycle(pid, M.mid, bMixIn);
 				R_ASSERT(B);
 				B->speed *= speed;
 			}
@@ -775,7 +829,7 @@ void player_hud::update_inertion(Fmatrix& trans)
 		Fvector& origin = trans.c;
 		xform = trans;
 
-		static Fvector st_last_dir = {0, 0, 0};
+		static Fvector st_last_dir = { 0, 0, 0 };
 
 		// load params
 		hud_item_measures::inertion_params inertion_data;
@@ -991,6 +1045,16 @@ bool player_hud::inertion_allowed()
 	return true;
 }
 
+bool player_hud::bobbing_allowed()
+{
+	attachable_hud_item* hi = m_attached_items[0];
+	if (hi)
+	{
+		return hi->m_parent_hud_item->HudBobbingAllowed();
+	}
+	return Core.Features.test(xrCore::Feature::wpn_bobbing);
+}
+
 void player_hud::OnMovementChanged(ACTOR_DEFS::EMoveCommand cmd)
 {
 	if (cmd == 0)
@@ -1013,5 +1077,113 @@ void player_hud::OnMovementChanged(ACTOR_DEFS::EMoveCommand cmd)
 
 		if (m_attached_items[1])
 			m_attached_items[1]->m_parent_hud_item->OnMovementChanged(cmd);
+	}
+}
+
+constexpr char* BOBBING_SECT = "wpn_bobbing_effector";
+constexpr float SPEED_REMINDER = 5.f;
+
+CWeaponBobbing::CWeaponBobbing()
+{
+	Load();
+}
+
+void CWeaponBobbing::Load()
+{
+	fTime = 0.f;
+	fReminderFactor = 0.f;
+	is_limping = false;
+
+	m_fAmplitudeRun = pSettings->r_float(BOBBING_SECT, "run_amplitude");
+	m_fAmplitudeWalk = pSettings->r_float(BOBBING_SECT, "walk_amplitude");
+	m_fAmplitudeLimp = pSettings->r_float(BOBBING_SECT, "limp_amplitude");
+
+	m_fSpeedRun = pSettings->r_float(BOBBING_SECT, "run_speed");
+	m_fSpeedWalk = pSettings->r_float(BOBBING_SECT, "walk_speed");
+	m_fSpeedLimp = pSettings->r_float(BOBBING_SECT, "limp_speed");
+
+	m_fCrouchFactor = READ_IF_EXISTS(pSettings, r_float, BOBBING_SECT, "crouch_k", 0.75f);
+	m_fZoomFactor = READ_IF_EXISTS(pSettings, r_float, BOBBING_SECT, "zoom_k", 1.f);
+	m_fScopeZoomFactor = READ_IF_EXISTS(pSettings, r_float, BOBBING_SECT, "scope_zoom_k", m_fZoomFactor);
+}
+
+void CWeaponBobbing::CheckState()
+{
+	dwMState = Actor()->get_state();
+	is_limping = Actor()->conditions().IsLimping();
+	m_bZoomMode = Actor()->IsZoomAimingMode();
+	fTime += Device.fTimeDelta;
+}
+
+void CWeaponBobbing::Update(Fmatrix& m, attachable_hud_item* hi)
+{
+	CheckState();
+	if (dwMState & ACTOR_DEFS::mcAnyMove)
+	{
+		if (fReminderFactor < 1.f)
+			fReminderFactor += SPEED_REMINDER * Device.fTimeDelta;
+		else
+			fReminderFactor = 1.f;
+	}
+	else
+	{
+		if (fReminderFactor > 0.f)
+			fReminderFactor -= SPEED_REMINDER * Device.fTimeDelta;
+		else
+			fReminderFactor = 0.f;
+	}
+
+	if (!fsimilar(fReminderFactor, 0))
+	{
+		Fvector dangle;
+		Fmatrix R, mR;
+		float k = (dwMState & ACTOR_DEFS::mcCrouch) ? m_fCrouchFactor : 1.f;
+		float k2 = k;
+
+		if (m_bZoomMode)
+		{
+			float zoom_factor = m_fZoomFactor;
+			if (hi)
+			{
+				CWeapon* wpn = smart_cast<CWeapon*>(hi->m_parent_hud_item);
+				if (wpn && wpn->IsScopeAttached() && !wpn->IsGrenadeMode())
+					zoom_factor = m_fScopeZoomFactor;
+			}
+			k2 *= zoom_factor;
+		}
+
+		float A, ST;
+
+		if (isActorAccelerated(dwMState, m_bZoomMode))
+		{
+			A = m_fAmplitudeRun * k2;
+			ST = m_fSpeedRun * fTime * k;
+		}
+		else if (is_limping)
+		{
+			A = m_fAmplitudeLimp * k2;
+			ST = m_fSpeedLimp * fTime * k;
+		}
+		else
+		{
+			A = m_fAmplitudeWalk * k2;
+			ST = m_fSpeedWalk * fTime * k;
+		}
+
+		float _sinA = _abs(_sin(ST) * A) * fReminderFactor;
+		float _cosA = _cos(ST) * A * fReminderFactor;
+
+		m.c.y += _sinA;
+		dangle.x = _cosA;
+		dangle.z = _cosA;
+		dangle.y = _sinA;
+
+
+		R.setHPB(dangle.x, dangle.y, dangle.z);
+
+		mR.mul(m, R);
+
+		m.k.set(mR.k);
+		m.j.set(mR.j);
 	}
 }

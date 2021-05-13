@@ -23,16 +23,12 @@ CHudItem::CHudItem(void)
 	RenderHud			(TRUE);
 	EnableHudInertion	(TRUE);
 	AllowHudInertion	(TRUE);
+	AllowHudBobbing(Core.Features.test(xrCore::Feature::wpn_bobbing));
 
 	m_bStopAtEndAnimIsRunning = false;
 	m_current_motion_def = nullptr;
 	m_started_rnd_anim_idx = u8(-1);
 	m_dwStateTime		= 0;
-
-	m_origin_offset		= 0.f;
-	m_tendto_speed		= 0.f;
-	m_zoom_origin_offset = 0.f;
-	m_zoom_tendto_speed	= 0.f;
 }
 
 CHudItem::~CHudItem(void)
@@ -50,12 +46,6 @@ DLL_Pure *CHudItem::_construct	()
 	return				(m_object);
 }
 
-static const float ORIGIN_OFFSET = -0.05f;
-static const float TENDTO_SPEED = 5.f;
-
-static const float ZOOM_ORIGIN_OFFSET = -0.01f;
-static const float ZOOM_TENDTO_SPEED = 10.f;
-
 void CHudItem::Load(LPCSTR section)
 {
 	//загрузить hud, если он нужен
@@ -64,15 +54,10 @@ void CHudItem::Load(LPCSTR section)
 		hud_sect		= pSettings->r_string(section, "hud");
 
 		if (pSettings->line_exist(hud_sect, "allow_inertion"))
-			AllowHudInertion(pSettings->r_bool(hud_sect, "allow_inertion"));
+			EnableHudInertion(pSettings->r_bool(hud_sect, "allow_inertion"));
 
-		if (pSettings->line_exist(hud_sect, "allow_collision"))
-			EnableHudCollision(pSettings->r_bool(hud_sect, "allow_collision"));
-
-		m_origin_offset			= READ_IF_EXISTS(pSettings, r_float, hud_sect, "inertion_origin_offset", ORIGIN_OFFSET);
-		m_tendto_speed			= READ_IF_EXISTS(pSettings, r_float, hud_sect, "inertion_tendto_speed", TENDTO_SPEED);
-		m_zoom_origin_offset	= READ_IF_EXISTS(pSettings, r_float, hud_sect, "inertion_zoom_origin_offset", ZOOM_ORIGIN_OFFSET);
-		m_zoom_tendto_speed		= READ_IF_EXISTS(pSettings, r_float, hud_sect, "inertion_zoom_tendto_speed", ZOOM_TENDTO_SPEED);
+		if (pSettings->line_exist(hud_sect, "allow_bobbing"))
+			AllowHudBobbing(pSettings->r_bool(hud_sect, "allow_bobbing"));
 	}
 
 	m_animation_slot	= pSettings->r_u32(section,"animation_slot");
@@ -104,7 +89,6 @@ void CHudItem::renderable_Render()
 		if (!object().H_Parent() || (!_hud_render && !IsHidden()))
 		{
 			on_renderable_Render();
-			//debug_draw_firedeps();
 		}
 		else if (object().H_Parent())
 		{
@@ -276,30 +260,6 @@ u32 CHudItem::PlayHUDMotion(const shared_str& M, BOOL bMixIn, CHudItem* W, u32 s
 	else
 		m_bStopAtEndAnimIsRunning = false;
 
-	/*
-	  std::string speed_k = prefix;
-	  speed_k += "_speed_k";
-	  if ( pSettings->line_exist( hud_sect.c_str(), speed_k.c_str() ) ) {
-		float k = pSettings->r_float( hud_sect.c_str(), speed_k.c_str() );
-		if ( !fsimilar( k, 1.f ) ) {
-		  for ( const auto& M : lst ) {
-			auto *animated   = m_pHUD->Visual()->dcast_PKinematicsAnimated();
-			auto *motion_def = animated->LL_GetMotionDef( M.m_MotionID );
-			motion_def->SetSpeedKoeff( k );
-		  }
-		}
-	  }
-
-	  std::string stop_k = prefix;
-	  stop_k += "_stop_k";
-	  if ( pSettings->line_exist( hud_sect.c_str(), stop_k.c_str() ) ) {
-		float k = pSettings->r_float( hud_sect.c_str(), stop_k.c_str() );
-		if ( k < 1.f )
-		  for ( auto& M : lst )
-			M.stop_k = k;
-	  }
-	*/
-
 	return anim_time;
 }
 
@@ -373,17 +333,28 @@ bool CHudItem::TryPlayAnimIdle()
 				PlayAnimIdleSprint();
 				return true;
 			}
-			if (Actor()->get_state()&ACTOR_DEFS::mcAnyMove)
+			if (!HudBobbingAllowed())
 			{
-				if (AnimationExist("anim_idle_moving") || AnimationExist("anm_idle_moving"))
+				if (Actor()->get_state()&ACTOR_DEFS::mcAnyMove)
 				{
-					PlayAnimIdleMoving();
-					return true;
+					if (!st.bCrouch)
+					{
+						if (AnimationExist("anim_idle_moving") || AnimationExist("anm_idle_moving"))
+						{
+							PlayAnimIdleMoving();
+							return true;
+						}
+					}
 				}
 			}
 		}
 	}
 	return false;
+}
+
+void CHudItem::PlayAnimBore()
+{
+	PlayHUDMotion("anim_idle", "anm_bore", TRUE, this, GetState());
 }
 
 bool CHudItem::AnimationExist(const shared_str& anim_name) const

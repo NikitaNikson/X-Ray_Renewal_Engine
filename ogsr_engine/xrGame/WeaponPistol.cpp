@@ -59,6 +59,38 @@ void CWeaponPistol::PlayAnimShow()
 		inherited::PlayAnimShow();
 }
 
+void CWeaponPistol::PlayAnimBore()
+{
+	if (m_opened)
+		PlayHUDMotion("anim_empty", "anm_bore_empty", TRUE, this, GetState());
+	else
+		inherited::PlayAnimBore();
+}
+
+void CWeaponPistol::PlayAnimIdleSprint()
+{
+	if (m_opened)
+	{
+		if (AnimationExist("anm_idle_sprint_empty") || AnimationExist("anm_idle_sprint"))
+			PlayHUDMotion("anm_idle_sprint_empty", "anm_idle_sprint", TRUE, nullptr, GetState());
+		else if (AnimationExist("anim_idle_sprint_empty") || AnimationExist("anim_idle_sprint"))
+			PlayHUDMotion("anim_idle_sprint_empty", "anim_idle_sprint", TRUE, nullptr, GetState());
+		else
+			PlayHUDMotion("anim_empty", TRUE, nullptr, GetState());
+	}
+	else
+		inherited::PlayAnimIdleSprint();
+}
+
+void CWeaponPistol::PlayAnimIdleMoving()
+{
+	if (m_opened)
+		PlayHUDMotion("anim_empty", "anm_idle_moving_empty", TRUE, nullptr, GetState());
+	else
+		inherited::PlayAnimIdleMoving();
+}
+
+
 void CWeaponPistol::PlayAnimIdle()
 {
 	VERIFY(GetState()==eIdle);
@@ -74,7 +106,7 @@ void CWeaponPistol::PlayAnimIdle()
 
 void CWeaponPistol::PlayAnimAim()
 {
-	if (iAmmoElapsed == 0)
+	if (m_opened)
 		PlayHUDMotion("anim_empty", "anm_idle_aim_empty", TRUE, nullptr, GetState());
 	else
 		inherited::PlayAnimAim();

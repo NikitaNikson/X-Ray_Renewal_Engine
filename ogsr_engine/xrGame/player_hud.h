@@ -14,6 +14,9 @@ struct motion_descr
 {
 	MotionID mid;
 	shared_str name;
+	float speed_k{ 1.0f };
+	float stop_k{ 1.0f };
+	const char* eff_name{};
 };
 
 struct player_hud_motion
@@ -42,8 +45,25 @@ struct hud_item_measures
 	};
 	Flags8 m_prop_flags;
 
-	Fvector m_item_attach[2]; // pos,rot
-	Fvector m_hands_offset[2][3]; // pos,rot/ normal,aim,GL
+	Fvector m_item_attach[2]{}; // pos,rot
+
+
+	enum m_hands_offset_coords : u8 {
+		m_hands_offset_pos,
+		m_hands_offset_rot,
+		m_hands_offset_size
+	};
+	enum m_hands_offset_type : u8 {
+		m_hands_offset_type_normal, // Не прицеливаемся
+		m_hands_offset_type_aim, // Смотрим в механический прицел
+		m_hands_offset_type_gl, // Смотрим в механический прицел в режиме ПГ
+		m_hands_offset_type_aim_scope, // Смотрим в присоединяемый нетекстурный прицел (будь то 3д прицел или колиматор) если включен "use_scope_zoom"
+		m_hands_offset_type_gl_scope, // Смотрим в присоединяемый нетекстурный прицел (будь то 3д прицел или колиматор) в режиме ПГ если включен "use_scope_grenade_zoom" - мне вот щас не понятно зачем это надо, но это как-то используют.
+		m_hands_offset_type_aim_gl_normal, // Смотрим в механический прицел если гранатомет присоединен
+		m_hands_offset_type_gl_normal_scope, // Смотрим в присоединяемый нетекстурный прицел (будь то 3д прицел или колиматор) если включен "use_scope_zoom" и гранатомет присоединен
+		m_hands_offset_type_size
+	};
+	Fvector m_hands_offset[m_hands_offset_size][m_hands_offset_type_size]{};
 
 	u16 m_fire_bone;
 	Fvector m_fire_point_offset;
@@ -52,19 +72,23 @@ struct hud_item_measures
 	u16 m_shell_bone;
 	Fvector m_shell_point_offset;
 
-	Fvector m_hands_attach[2]; // pos,rot
+	Fvector m_hands_attach[2]{}; // pos,rot
 
 	void load(const shared_str& sect_name, IKinematics* K);
-	
+
 	struct inertion_params
 	{
 		float m_pitch_offset_r;
 		float m_pitch_offset_n;
 		float m_pitch_offset_d;
 		float m_pitch_low_limit;
+		// отклонение модели от "курса" из за инерции во время движения
 		float m_origin_offset;
+		// отклонение модели от "курса" из за инерции во время движения с прицеливанием
 		float m_origin_offset_aim;
+		// скорость возврата худ модели в нужное положение
 		float m_tendto_speed;
+		// скорость возврата худ модели в нужное положение во время прицеливания
 		float m_tendto_speed_aim;
 	};
 	inertion_params m_inertion_params; //--#SM+#--	
@@ -73,13 +97,13 @@ struct hud_item_measures
 struct attachable_hud_item
 {
 	player_hud* m_parent;
-	CHudItem* m_parent_hud_item;
+	CHudItem* m_parent_hud_item{};
 	shared_str m_sect_name;
 	shared_str m_visual_name;
-	IKinematics* m_model;
-	u16 m_attach_place_idx;
+	IKinematics* m_model{};
+	u16 m_attach_place_idx{};
 	hud_item_measures m_measures;
-	bool m_has_separated_hands;
+	bool m_has_separated_hands{};
 
 	// runtime positioning
 	Fmatrix m_attach_offset;
@@ -87,9 +111,7 @@ struct attachable_hud_item
 
 	player_hud_motion_container m_hand_motions;
 
-	attachable_hud_item(player_hud* pparent) : m_parent(pparent), m_upd_firedeps_frame(u32(-1)),
-											   m_parent_hud_item(nullptr), m_model(nullptr),
-											   m_attach_place_idx(0), m_has_separated_hands(false) {}
+	attachable_hud_item(player_hud* pparent) : m_parent(pparent), m_upd_firedeps_frame(u32(-1)) {}
 	~attachable_hud_item();
 
 	void load(const shared_str& sect_name);
@@ -119,6 +141,40 @@ struct attachable_hud_item
 	u32 anim_play(const shared_str& anim_name, BOOL bMixIn, const CMotionDef*& md, u8& rnd, bool randomAnim);
 };
 
+class CWeaponBobbing
+{
+public:
+	CWeaponBobbing();
+	~CWeaponBobbing() = default;
+
+	void Load();
+	void Update(Fmatrix& m, attachable_hud_item* hi);
+	void CheckState();
+
+private:
+	float	fTime;
+	Fvector	vAngleAmplitude;
+	float	fYAmplitude;
+	float	fSpeed;
+
+	u32		dwMState;
+	float	fReminderFactor;
+	bool	is_limping;
+	bool	m_bZoomMode;
+
+	float	m_fAmplitudeRun;
+	float	m_fAmplitudeWalk;
+	float	m_fAmplitudeLimp;
+
+	float	m_fSpeedRun;
+	float	m_fSpeedWalk;
+	float	m_fSpeedLimp;
+
+	float	m_fCrouchFactor;
+	float	m_fZoomFactor;
+	float	m_fScopeZoomFactor;
+};
+
 class player_hud
 {
 public:
@@ -130,7 +186,7 @@ public:
 	void render_hud();
 	void render_item_ui();
 	bool render_item_ui_query();
-	u32 anim_play(u16 part, const MotionID& M, BOOL bMixIn, const CMotionDef*& md, float speed, IKinematicsAnimated* itemModel = nullptr);
+	u32 anim_play(u16 part, const motion_descr& M, BOOL bMixIn, const CMotionDef*& md, float speed, IKinematicsAnimated* itemModel = nullptr);
 	const shared_str& section_name() const { return m_sect_name; }
 	attachable_hud_item* create_hud_item(const shared_str& sect);
 
@@ -143,11 +199,11 @@ public:
 	{
 		m_attached_items[0] = nullptr;
 		m_attached_items[1] = nullptr;
-	};
+	}
 
 	void calc_transform(u16 attach_slot_idx, const Fmatrix& offset, Fmatrix& result);
 	void tune(Ivector values);
-	u32 motion_length(const MotionID& M, const CMotionDef*& md, float speed, IKinematicsAnimated* itemModel, attachable_hud_item* pi = nullptr);
+	u32 motion_length(const motion_descr& M, const CMotionDef*& md, float speed, IKinematicsAnimated* itemModel, attachable_hud_item* pi = nullptr);
 	u32 motion_length(const shared_str& anim_name, const shared_str& hud_name, const CMotionDef*& md);
 	void OnMovementChanged(ACTOR_DEFS::EMoveCommand cmd);
 
@@ -155,6 +211,7 @@ private:
 	void update_inertion(Fmatrix& trans);
 	void update_additional(Fmatrix& trans);
 	bool inertion_allowed();
+	bool bobbing_allowed();
 
 private:
 	shared_str m_sect_name;
@@ -162,10 +219,11 @@ private:
 	Fmatrix m_attach_offset;
 
 	Fmatrix m_transform;
-	IKinematicsAnimated* m_model;
+	IKinematicsAnimated* m_model{};
 	xr_vector<u16> m_ancors;
-	attachable_hud_item* m_attached_items[2];
+	attachable_hud_item* m_attached_items[2]{};
 	xr_vector<attachable_hud_item*> m_pool;
+	CWeaponBobbing* m_bobbing{};
 };
 
 extern player_hud* g_player_hud;
