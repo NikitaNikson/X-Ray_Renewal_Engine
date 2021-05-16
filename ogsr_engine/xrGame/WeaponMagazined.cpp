@@ -1360,6 +1360,7 @@ void CWeaponMagazined::save(NET_Packet &output_packet)
 	save_data		(m_iQueueSize, output_packet);
 	save_data		(m_iShotNum, output_packet);
 	save_data		(m_iCurFireMode, output_packet);
+	save_data		(isMisfire(), output_packet);
 }
 
 void CWeaponMagazined::load(IReader &input_packet)
@@ -1368,6 +1369,7 @@ void CWeaponMagazined::load(IReader &input_packet)
 	load_data		(m_iQueueSize, input_packet);SetQueueSize(m_iQueueSize);
 	load_data		(m_iShotNum, input_packet);
 	load_data		(m_iCurFireMode, input_packet);
+	load_data		(isMisfire(), input_packet);
 }
 
 void CWeaponMagazined::net_Export	(NET_Packet& P)
