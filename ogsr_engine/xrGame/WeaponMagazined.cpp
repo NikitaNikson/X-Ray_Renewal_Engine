@@ -667,25 +667,28 @@ void CWeaponMagazined::OnEmptyClick	()
 
 void CWeaponMagazined::OnAnimationEnd(u32 state) 
 {
-	switch(state) 
+	switch (state)
 	{
-		case eReload:
-                                    if (!m_magazine.empty() || !m_bcartridge_in_the_barrel)
-									{
-			                            ReloadMagazine();
-		                                HUD_SOUND::StopSound( sndReload );
-		                                HUD_SOUND::StopSound(sndReloadPartly);
-								    }
-                                    else
-		                    {
-                                --iMagazineSize;
-			                    ReloadMagazine();
-		                        HUD_SOUND::StopSound( sndReload );
-		                        HUD_SOUND::StopSound(sndReloadPartly);
-                                ++iMagazineSize;
-							}
-		                }
-                break;
+	case eReload:
+	{
+		if (!m_magazine.empty() || !m_bcartridge_in_the_barrel)
+		{
+			ReloadMagazine();
+			HUD_SOUND::StopSound(sndReload);
+			HUD_SOUND::StopSound(sndReloadPartly);
+		}
+		else
+		{
+			--iMagazineSize;
+			ReloadMagazine();
+			HUD_SOUND::StopSound(sndReload);
+			HUD_SOUND::StopSound(sndReloadPartly);
+			++iMagazineSize;
+		}
+		break;
+	}
+	
+	
 		case eHiding:	SwitchState(eHidden);   break;	// End of Hide
 		case eShowing:	SwitchState(eIdle);		break;	// End of Show
 		case eIdle:		switch2_Idle();			break;  // Keep showing idle
@@ -1360,7 +1363,7 @@ void CWeaponMagazined::save(NET_Packet &output_packet)
 	save_data		(m_iQueueSize, output_packet);
 	save_data		(m_iShotNum, output_packet);
 	save_data		(m_iCurFireMode, output_packet);
-	save_data		(isMisfire(), output_packet);
+//	save_data		(isMisfire(), output_packet);
 }
 
 void CWeaponMagazined::load(IReader &input_packet)
@@ -1369,7 +1372,7 @@ void CWeaponMagazined::load(IReader &input_packet)
 	load_data		(m_iQueueSize, input_packet);SetQueueSize(m_iQueueSize);
 	load_data		(m_iShotNum, input_packet);
 	load_data		(m_iCurFireMode, input_packet);
-	load_data		(isMisfire(), input_packet);
+//	load_data		(isMisfire(), input_packet);
 }
 
 void CWeaponMagazined::net_Export	(NET_Packet& P)
