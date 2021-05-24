@@ -552,9 +552,6 @@ void fill_vid_mode_list(CHW* _hw)
 		DXGI_MODE_DESC &desc = modes[i];
 		string32		str;
 
-		if(desc.Width < 800)
-			continue;
-
 		xr_sprintf(str, sizeof(str), "%dx%d", desc.Width, desc.Height);
 
 		if(_tmp.end() != std::find_if(_tmp.begin(), _tmp.end(), _uniq_mode(str)))
