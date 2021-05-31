@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         Configuration: [Debug, Release]
-        Platform: [x64]
+        Platform: [x86, x64]
     steps:
     - uses: actions/checkout@v2
       with:
