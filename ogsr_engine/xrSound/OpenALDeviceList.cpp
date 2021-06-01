@@ -104,8 +104,6 @@ void ALDeviceList::Enumerate()
                         m_devices.back().props.efx = alcIsExtensionPresent(device,"ALC_EXT_EFX") == AL_TRUE;
 						m_devices.back().props.xram = (alIsExtensionPresent("EAX_RAM") == TRUE);
 
-						// KD: disable unwanted eax flag to force eax on all devices
-						m_devices.back().props.eax_unwanted = 0; // ((0 == xr_strcmp(actualDeviceName, AL_GENERIC_HARDWARE)) || (0 == xr_strcmp(actualDeviceName, AL_GENERIC_SOFTWARE)));
 						++index;
 					}
 					alcDestroyContext(context);
