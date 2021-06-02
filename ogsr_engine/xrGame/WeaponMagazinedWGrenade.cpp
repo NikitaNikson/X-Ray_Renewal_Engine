@@ -25,7 +25,7 @@
 #include "alife_registry_wrappers.h"
 #include "alife_simulator_header.h"
 
-LPCSTR grenade_launcher_def_bone_cop = "grenade";
+constexpr char* grenade_launcher_def_bone_cop = "grenade";
 
 CWeaponMagazinedWGrenade::CWeaponMagazinedWGrenade(LPCSTR name,ESoundTypes eSoundType) : CWeaponMagazined(name, eSoundType)
 {
@@ -657,16 +657,17 @@ void CWeaponMagazinedWGrenade::PlayAnimReload()
 	{
 		if (IsPartlyReloading())
 		{
-			if (AnimationExist("anim_reload_gl_partly"))
-				PlayHUDMotion("anim_reload_gl_partly", TRUE, this, GetState());
-			else if (AnimationExist("anm_reload_w_gl_partly"))
-				PlayHUDMotion("anm_reload_w_gl_partly", TRUE, this, GetState());
+			if (AnimationExist("anim_reload_gl_partly") || AnimationExist("anm_reload_w_gl_partly"))
+				PlayHUDMotion("anim_reload_gl_partly", "anm_reload_w_gl_partly", TRUE, this, GetState());
 			else
 				PlayHUDMotion("anim_reload_gl", "anm_reload_w_gl", true, this, GetState());
 		}
 		else
 		{
-			PlayHUDMotion("anim_reload_gl", "anm_reload_w_gl", true, this, GetState());
+			if (AnimationExist("anm_reload_empty_w_gl"))
+				PlayHUDMotion("anm_reload_empty_w_gl", true, this, GetState());
+			else
+				PlayHUDMotion("anim_reload_gl", "anm_reload_w_gl", true, this, GetState());
 		}
 	}
 	else
@@ -720,6 +721,8 @@ void CWeaponMagazinedWGrenade::PlayAnimIdle()
 					{
 						if (!st.bCrouch)
 							act_state = 2;
+						else
+							act_state = 3;
 					}
 				}
 			}
@@ -750,6 +753,9 @@ void CWeaponMagazinedWGrenade::PlayAnimIdle()
 					else
 						PlayHUDMotion("anim_idle_g", TRUE, nullptr, GetState());
 				}
+				else if (act_state == 3)
+					if (AnimationExist("anm_idle_moving_crouch_g"))
+						PlayHUDMotion("anm_idle_moving_crouch_g", true, nullptr, GetState());
 			}
 			else
 			{
@@ -777,6 +783,9 @@ void CWeaponMagazinedWGrenade::PlayAnimIdle()
 					else
 						PlayHUDMotion("anim_idle_gl", TRUE, nullptr, GetState());
 				}
+				else if (act_state == 3)
+					if (AnimationExist("anm_idle_moving_crouch_w_gl"))
+						PlayHUDMotion("anm_idle_moving_crouch_w_gl", true, nullptr, GetState());
 			}
 		}
 	}
@@ -821,9 +830,6 @@ void CWeaponMagazinedWGrenade::UpdateSounds	()
 
 void CWeaponMagazinedWGrenade::UpdateGrenadeVisibility(bool visibility)
 {
-	if (H_Parent() != Level().CurrentEntity())
-		return;
-
 	if (!GetHUDmode())
 		return;
 

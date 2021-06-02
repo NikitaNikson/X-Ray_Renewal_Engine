@@ -345,6 +345,11 @@ bool CHudItem::TryPlayAnimIdle()
 							return true;
 						}
 					}
+					else if (AnimationExist("anm_idle_moving_crouch"))
+					{
+						PlayAnimIdleMovingCrouch();
+						return true;
+					}
 				}
 			}
 		}
@@ -352,10 +357,10 @@ bool CHudItem::TryPlayAnimIdle()
 	return false;
 }
 
-void CHudItem::PlayAnimBore()
+/*void CHudItem::PlayAnimBore()
 {
 	PlayHUDMotion("anim_idle", "anm_bore", TRUE, this, GetState());
-}
+}*/
 
 bool CHudItem::AnimationExist(const shared_str& anim_name) const
 {
@@ -388,6 +393,8 @@ void CHudItem::PlayAnimIdleMoving()
 	else
 		PlayHUDMotion("anim_idle_moving", "anim_idle", true, nullptr, GetState());
 }
+
+void CHudItem::PlayAnimIdleMovingCrouch() { PlayHUDMotion("anm_idle_moving_crouch", true, nullptr, GetState()); }
 
 void CHudItem::PlayAnimIdleSprint()
 {

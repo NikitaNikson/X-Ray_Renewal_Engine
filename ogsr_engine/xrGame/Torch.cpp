@@ -251,6 +251,16 @@ BOOL CTorch::net_Spawn(CSE_Abstract* DC)
 	light_render->set_cone	(deg2rad(pUserData->r_float			("torch_definition","spot_angle")));
 	light_render->set_texture(pUserData->r_string				("torch_definition","spot_texture"));
 
+    /*light_render->set_volumetric(pUserData->r_bool("torch_definition", "volumetric"));
+    light_render->set_volumetric_distance(pUserData->r_float("torch_definition", "volumetric_distance"));
+    light_render->set_volumetric_intensity(pUserData->r_float("torch_definition", "volumetric_intensity"));
+    light_render->set_volumetric_quality(pUserData->r_float("torch_definition", "volumetric_quality"));*/
+	
+    light_render->set_volumetric(true);
+    light_render->set_volumetric_distance(0.25);
+    light_render->set_volumetric_intensity(0.10);
+    light_render->set_volumetric_quality(0.5);
+
 	glow_render->set_texture(pUserData->r_string				("torch_definition","glow_texture"));
 	glow_render->set_color( m_color );
 	glow_render->set_radius	(pUserData->r_float					("torch_definition","glow_radius"));
@@ -353,6 +363,7 @@ void CTorch::UpdateCL()
 				offset.mad					(M.j,TORCH_OFFSET.y);
 				offset.mad					(M.k,TORCH_OFFSET.z);
 				light_render->set_position	(offset);
+                light_render->set_volumetric(false);
 
 				if(true /*false*/)
 				{
