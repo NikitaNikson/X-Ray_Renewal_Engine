@@ -1168,11 +1168,13 @@ void CCC_RegisterCommands()
 	CMD1(CCC_MemStats,			"stat_memory"			);
 	// game
 	psActorFlags.set(AF_ALWAYSRUN, true);
+	psActorFlags.set(AF_BUILD_BOBBING, false);
 	CMD3(CCC_Mask,				"g_always_run",			&psActorFlags,	AF_ALWAYSRUN);
 	CMD1(CCC_GameDifficulty,	"g_game_difficulty"		);
 
 	CMD3(CCC_Mask,				"g_dof_scope",			&psActorFlags,	AF_DOF_SCOPE);
 	CMD3(CCC_Mask,				"g_dof_zoom",			&psActorFlags,	AF_DOF_ZOOM);
+	CMD3(CCC_Mask,				"g_build_bobbing",			&psActorFlags,	AF_BUILD_BOBBING);
 	CMD4( CCC_Integer, "g_dof_zoom_far",  &g_dof_zoom_far,  10, 100 );
 	CMD4( CCC_Integer, "g_dof_zoom_near", &g_dof_zoom_near, 10, 100 );
 

@@ -1107,6 +1107,7 @@ void CWeaponBobbing::CheckState()
 	fTime += Device.fTimeDelta;
 }
 
+#include "Actor_Flags.h"
 void CWeaponBobbing::Update(Fmatrix& m, attachable_hud_item* hi)
 {
 	CheckState();
@@ -1164,12 +1165,21 @@ void CWeaponBobbing::Update(Fmatrix& m, attachable_hud_item* hi)
 
 		float _sinA = _abs(_sin(ST) * A) * fReminderFactor;
 		float _cosA = _cos(ST) * A * fReminderFactor;
-
-		m.c.y += -(_sinA);
-		dangle.x = -(_cosA);
-		dangle.z = -(_cosA);
-		dangle.y = -(_sinA);
-
+		
+        if(psActorFlags.test(AF_BUILD_BOBBING))
+		{
+		    m.c.y += -(_sinA);
+		    dangle.x = -(_cosA);
+		    dangle.z = -(_cosA);
+		    dangle.y = -(_sinA);
+        }
+		else
+		{
+		    m.c.y += _sinA;
+		    dangle.x = _cosA;
+		    dangle.z = _cosA;
+		    dangle.y = _sinA;
+        }
 
 		R.setHPB(dangle.x, dangle.y, dangle.z);
 
