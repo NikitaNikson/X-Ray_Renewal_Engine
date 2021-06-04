@@ -9,7 +9,7 @@
 #include "../xrRender/fbasicvisual.h"
 #include "../../xr_3da/CustomHUD.h"
  
-const	float		S_distance		= 48;
+const	float		S_distance		= 242;
 const	float		S_distance2		= S_distance*S_distance;
 const	float		S_ideal_size	= 4.f;		// ideal size for the object
 const	float		S_fade			= 4.5;
@@ -273,12 +273,12 @@ void CLightShadows::calculate	()
 			//float		p_nearR	=	C.C.distance_to(L.source->position) + p_R*0.85f + eps;
 			//			p_nearR =	p_near;
 			float		p_far	=	_min(Lrange,_max(p_dist+S_fade,p_dist+p_R));	
-			if (p_near<eps)			continue;
-			if (p_far<(p_near+eps))	continue;
+			//if (p_near<eps)			continue;
+			//if (p_far<(p_near+eps))	continue;
 			//	Igor: make check here instead of assertion in buil_projection_hat
-			if (!(_abs(p_far-p_near) > eps)) continue;
-			if (p_hat>0.9f)			continue;
-			if (p_hat<0.01f)		continue;
+			//if (!(_abs(p_far-p_near) > eps)) continue;
+			//if (p_hat>0.9f)			continue;
+			//if (p_hat<0.01f)		continue;
 
 			//Msg			("* near(%f), near-x(%f)",p_near,p_nearR);
 			
