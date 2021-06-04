@@ -1165,10 +1165,10 @@ void CWeaponBobbing::Update(Fmatrix& m, attachable_hud_item* hi)
 		float _sinA = _abs(_sin(ST) * A) * fReminderFactor;
 		float _cosA = _cos(ST) * A * fReminderFactor;
 
-		m.c.y += _sinA;
-		dangle.x = _cosA;
-		dangle.z = _cosA;
-		dangle.y = _sinA;
+		m.c.y += -(_sinA);
+		dangle.x = -(_cosA);
+		dangle.z = -(_cosA);
+		dangle.y = -(_sinA);
 
 
 		R.setHPB(dangle.x, dangle.y, dangle.z);
