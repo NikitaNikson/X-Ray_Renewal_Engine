@@ -130,17 +130,7 @@ void CTextureDescrMngr::LoadTHM(LPCSTR initial)
 		tp.Clear			();
 		tp.Load				(*F);
 		FS.r_close			(F);
-		if (
-#ifdef USE_SHOC_THM_FORMAT
-			STextureParams::ttImage == tp.fmt
-			|| STextureParams::ttTerrain == tp.fmt
-			|| STextureParams::ttNormalMap == tp.fmt
-#else
-			STextureParams::ttImage == tp.type
-			|| STextureParams::ttTerrain == tp.type
-			|| STextureParams::ttNormalMap == tp.type
-#endif
-		)
+		if ((STextureParams::ttImage == tp.fmt || STextureParams::ttTerrain == tp.fmt || STextureParams::ttNormalMap == tp.fmt) || (STextureParams::ttImage == tp.type || STextureParams::ttTerrain == tp.type || STextureParams::ttNormalMap == tp.type))
 		{
 			texture_desc&	desc	= m_texture_details[fn];
 			cl_dt_scaler*&	dts		= m_detail_scalers[fn];
