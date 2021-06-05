@@ -702,7 +702,7 @@ void CActor::Die(CObject* who)
 			inventory().Ruck(l_blist.front());
 	}
 
-	cam_Set					(eacFreeLook);
+	cam_Set(eacFreeLook);
 	mstate_wishful	&=		~mcAnyMove;
 	mstate_real		&=		~mcAnyMove;
 
