@@ -144,7 +144,7 @@ void CPatrolPathManager::select_point(const Fvector &position, u32 &dest_vertex_
 			}
 			default			: NODEFAULT;
 		}
-		R_ASSERT2			(
+		/*R_ASSERT2			(
 			vertex || show_restrictions(m_object),
 			make_string(
 				"any vertex in patrol path [%s] in inaccessible for object [%s]",
@@ -160,7 +160,7 @@ void CPatrolPathManager::select_point(const Fvector &position, u32 &dest_vertex_
 				*vertex->data().name(),
 				*m_game_object->cName()
 			)
-		);
+		);*/
 
 		if (!m_path->vertex(m_prev_point_index))
 			m_prev_point_index	= vertex->vertex_id();
