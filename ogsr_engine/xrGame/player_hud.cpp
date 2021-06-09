@@ -6,6 +6,7 @@
 #include "physic_item.h"
 #include "ActorEffector.h"
 #include "../xr_3da/IGame_Persistent.h"
+#include "../xr_3da/CustomHUD.h"
 #include "Weapon.h"
 #include "Actor.h"
 #include "ActorCondition.h"
@@ -769,6 +770,13 @@ u32 player_hud::motion_length(const motion_descr& M, const CMotionDef*& md, floa
 void player_hud::update(const Fmatrix& cam_trans)
 {
 	Fmatrix trans = cam_trans;
+    if (psHUD_Flags.test(HUD_LEFT_HANDED))
+    {
+        trans.m[0][0] = -(trans.m[0][0]);
+        trans.m[0][1] = -(trans.m[0][1]);
+        trans.m[0][2] = -(trans.m[0][2]);
+        trans.m[0][3] = -(trans.m[0][3]);
+    }
 	update_inertion(trans);
 	update_additional(trans);
 
