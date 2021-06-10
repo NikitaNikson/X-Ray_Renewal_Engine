@@ -11,7 +11,9 @@
 8) Переключение между билдовской и огсровской раскачкой (команда g_build_bobbing on/off)
 9) Команда hud_left_handed из OpenXRay (оружие в левой руке)
 
-<a href="https://github.com/i-love-kfc/OGSR-Engine_by_ILK/releases" alt="Релизы"></a>
-<a href="https://github.com/i-love-kfc/OGSR-Engine_by_ILK/wiki" alt="Вики"></a>
-
 Пока что все.
+
+
+[Релизы](https://github.com/i-love-kfc/OGSR-Engine_by_ILK/releases)  
+[Вики](https://github.com/i-love-kfc/OGSR-Engine_by_ILK/wiki)  
+[Баги, предложения](https://github.com/i-love-kfc/OGSR-Engine_by_ILK/issues)
