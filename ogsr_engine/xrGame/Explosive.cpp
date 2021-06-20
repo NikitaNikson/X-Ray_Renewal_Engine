@@ -569,6 +569,7 @@ void CExplosive::OnEvent(NET_Packet& P, u16 type)
             ExplodeParams(pos, normal);
             Explode();
             m_fExplodeDuration = m_fExplodeDurationMax;
+            Break;
         }
 			
 			
