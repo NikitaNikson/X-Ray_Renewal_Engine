@@ -557,17 +557,23 @@ void CExplosive::OnEvent(NET_Packet& P, u16 type)
 {
 	switch (type) {
 		case GE_GRENADE_EXPLODE : {
-			Fvector pos, normal;
-			u16 parent_id;
-			P.r_u16(parent_id);
-			P.r_vec3(pos);
-			P.r_vec3(normal);
+			if (!m_explosion_flags.test(flExploding))
+        {
+            Fvector pos, normal;
+            u16 parent_id;
+            P.r_u16(parent_id);
+            P.r_vec3(pos);
+            P.r_vec3(normal);
+
+            SetInitiator(parent_id);
+            ExplodeParams(pos, normal);
+            Explode();
+            m_fExplodeDuration = m_fExplodeDurationMax;
+            Break;
+        }
 			
-			SetInitiator(parent_id);
-			ExplodeParams(pos,normal);
-			Explode();
-			m_fExplodeDuration = m_fExplodeDurationMax;
-			break;
+			
+
 		}
 	}
 }
