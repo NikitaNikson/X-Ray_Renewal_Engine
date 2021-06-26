@@ -23,6 +23,7 @@ protected:
 	HUD_SOUND		sndHide;
 	HUD_SOUND		sndShot;
 	HUD_SOUND		sndEmptyClick;
+	HUD_SOUND		sndMisfire;
 	HUD_SOUND		sndReload, sndReloadPartly;
 	bool sndReloadPartlyExist{};
 	HUD_SOUND		sndFireModes;
@@ -64,6 +65,7 @@ protected:
 
 	virtual void	OnAnimationEnd	(u32 state);
 	virtual void	MyLittleReload	();
+	virtual void	MyLittleMisfire	();
 	virtual void	OnStateSwitch	(u32 S, u32 oldState);
 
 	virtual void	UpdateSounds	();

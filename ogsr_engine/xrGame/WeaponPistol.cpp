@@ -115,7 +115,11 @@ void CWeaponPistol::PlayAnimAim()
 void CWeaponPistol::PlayAnimReload()
 {
 	VERIFY(GetState() == eReload);
-	if (m_opened)
+	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+	{
+		PlayHUDMotion("anim_misfire", "anm_misfire", TRUE, nullptr, GetState());
+	}
+	else if (m_opened)
 		PlayHUDMotion("anim_reload_empty", "anm_reload_empty", TRUE, nullptr, GetState());
 	else 
 		inherited::PlayAnimReload();

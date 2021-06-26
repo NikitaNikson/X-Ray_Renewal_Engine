@@ -54,6 +54,7 @@ CWeaponMagazined::~CWeaponMagazined()
 	HUD_SOUND::DestroySound(sndEmptyClick);
 	HUD_SOUND::DestroySound(sndReload);
 	HUD_SOUND::DestroySound(sndReloadPartly);
+	HUD_SOUND::DestroySound(sndMisfire);
 	HUD_SOUND::DestroySound(sndFireModes);
 	HUD_SOUND::DestroySound(sndZoomChange);
 	if (m_binoc_vision)
@@ -69,6 +70,7 @@ void CWeaponMagazined::StopHUDSounds		()
 	HUD_SOUND::StopSound(sndEmptyClick);
 	HUD_SOUND::StopSound(sndReload);
 	HUD_SOUND::StopSound(sndReloadPartly);
+	HUD_SOUND::StopSound(sndMisfire);
 	HUD_SOUND::StopSound(sndFireModes);
 	HUD_SOUND::StopSound(sndZoomChange);
 
@@ -112,6 +114,10 @@ void CWeaponMagazined::Load	(LPCSTR section)
 	HUD_SOUND::LoadSound(section,"snd_holster"	, sndHide		, m_eSoundHide		);
 	HUD_SOUND::LoadSound(section,"snd_shoot"	, sndShot		, m_eSoundShot		);
 	HUD_SOUND::LoadSound(section,"snd_empty"	, sndEmptyClick	, m_eSoundEmptyClick	);
+	
+	if (pSettings->line_exist(section, "snd_misfire"))
+		HUD_SOUND::LoadSound(section, "snd_misfire", sndMisfire, m_eSoundReload);
+
 	if (pSettings->line_exist(section, "snd_reload_empty"))
 		HUD_SOUND::LoadSound(section, "snd_reload_empty", sndReload, m_eSoundReload);
 	else
@@ -682,18 +688,21 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 	{
 	    case eReload:
 	    {
-			MyLittleReload();
+			if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+				MyLittleMisfire();
+			else
+				MyLittleReload();
 		    break;
 	    }
 		case eHiding:	SwitchState(eHidden);   break;	// End of Hide
 		case eShowing:	SwitchState(eIdle);		break;	// End of Show
 		case eIdle:		switch2_Idle();			break;  // Keep showing idle
-
 	}
 }
 
 void CWeaponMagazined::MyLittleReload() //-> i-love-kfc
 {
+
 	if (iAmmoElapsed == 0 && m_bcartridge_in_the_barrel && iMagazineSize != 1)
 	{
 		--iMagazineSize;
@@ -707,6 +716,14 @@ void CWeaponMagazined::MyLittleReload() //-> i-love-kfc
 	HUD_SOUND::StopSound(sndReload);
 	HUD_SOUND::StopSound(sndReloadPartly);
 	SwitchState( eIdle );
+}
+
+void CWeaponMagazined::MyLittleMisfire() //-> i-love-kfc
+{
+	bMisfire = false;
+	SwitchState(eIdle);
+	HUD_SOUND::StopSound(sndMisfire);
+	SwitchState(eIdle);
 }
 
 void CWeaponMagazined::switch2_Idle()
@@ -788,7 +805,9 @@ void CWeaponMagazined::switch2_Empty()
 }
 void CWeaponMagazined::PlayReloadSound()
 {
-	if (IsPartlyReloading() && sndReloadPartlyExist)
+	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+		PlaySound(sndMisfire, get_LastFP());
+	else if (IsPartlyReloading() && sndReloadPartlyExist)
 		PlaySound(sndReloadPartly, get_LastFP());
 	else
 		PlaySound(sndReload, get_LastFP());
@@ -1212,19 +1231,26 @@ void CWeaponMagazined::PlayAnimHide()
 void CWeaponMagazined::PlayAnimReload()
 {
 	VERIFY(GetState() == eReload);
-	if (IsPartlyReloading())
+	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
 	{
-		if (AnimationExist("anim_reload_partly") || AnimationExist("anm_reload_partly"))
-			PlayHUDMotion("anim_reload_partly", "anm_reload_partly", TRUE, nullptr, GetState());
-		else
-			PlayHUDMotion("anim_reload", "anm_reload", TRUE, nullptr, GetState());
+		PlayHUDMotion("anim_misfire", "anm_misfire", TRUE, nullptr, GetState());
 	}
 	else
 	{
-		if (AnimationExist("anm_reload_empty"))
-			PlayHUDMotion("anm_reload_empty", TRUE, nullptr, GetState());
+		if (IsPartlyReloading())
+		{
+			if (AnimationExist("anim_reload_partly") || AnimationExist("anm_reload_partly"))
+				PlayHUDMotion("anim_reload_partly", "anm_reload_partly", TRUE, nullptr, GetState());
+			else
+				PlayHUDMotion("anim_reload", "anm_reload", TRUE, nullptr, GetState());
+		}
 		else
-			PlayHUDMotion("anim_reload", "anm_reload", TRUE, nullptr, GetState());
+		{
+			if (AnimationExist("anm_reload_empty"))
+				PlayHUDMotion("anm_reload_empty", TRUE, nullptr, GetState());
+			else
+				PlayHUDMotion("anim_reload", "anm_reload", TRUE, nullptr, GetState());
+		}
 	}
 }
 
