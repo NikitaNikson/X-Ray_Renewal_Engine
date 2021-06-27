@@ -702,7 +702,6 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 
 void CWeaponMagazined::MyLittleReload() //-> i-love-kfc
 {
-
 	if (iAmmoElapsed == 0 && m_bcartridge_in_the_barrel && iMagazineSize != 1)
 	{
 		--iMagazineSize;
@@ -721,7 +720,6 @@ void CWeaponMagazined::MyLittleReload() //-> i-love-kfc
 void CWeaponMagazined::MyLittleMisfire() //-> i-love-kfc
 {
 	bMisfire = false;
-	SwitchState(eIdle);
 	HUD_SOUND::StopSound(sndMisfire);
 	SwitchState(eIdle);
 }

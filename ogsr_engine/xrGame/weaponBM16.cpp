@@ -15,7 +15,9 @@ void CWeaponBM16::Load	(LPCSTR section)
 
 void CWeaponBM16::PlayReloadSound()
 {
-	if ( m_magazine.size() == 1 || !HaveCartridgeInInventory( 2 ) )
+	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+		PlaySound	(sndMisfire,get_LastFP());
+	else if ( m_magazine.size() == 1 || !HaveCartridgeInInventory( 2 ) )
 		PlaySound	(m_sndReload1,get_LastFP());
 	else
 		PlaySound	(sndReload,get_LastFP());
@@ -101,7 +103,12 @@ void CWeaponBM16::PlayAnimHide()
 void CWeaponBM16::PlayAnimReload()
 {
 	VERIFY(GetState() == eReload);
-	if (m_magazine.size() == 1 || !HaveCartridgeInInventory(2))
+	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+	{
+		bMisfire = false;
+		PlayHUDMotion("anim_misfire", "anm_misfire", TRUE, nullptr, GetState());
+	}
+	else if (m_magazine.size() == 1 || !HaveCartridgeInInventory(2))
 		PlayHUDMotion("anim_reload_1", "anm_reload_1", TRUE, this, GetState());
 	else
 		PlayHUDMotion("anim_reload", "anm_reload_2", TRUE, this, GetState());
