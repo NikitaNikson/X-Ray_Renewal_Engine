@@ -15,8 +15,8 @@ ef_main_weapon_type			= 1
 ef_weapon_type				= 7
 
 ;-----------------------------------------------------------------------------------
-holder_range_modifier	= 1.0               ; во сколько раз увеличивается eye_range 
-holder_fov_modifier		= 0.7              ; во сколько раз увеличивается eye_fov
+holder_range_modifier	= 1.0               ; ai neieuei ?ac oaaee?eaaaony eye_range 
+holder_fov_modifier		= 0.7              ; ai neieuei ?ac oaaee?eaaaony eye_fov
 ;-----------------------------------------------------------------------------------
 
 tri_state_reload			= on
@@ -33,23 +33,23 @@ ammo_mag_size		 		= 8
 ammo_class		 			= ammo_12x70_buck, ammo_12x76_zhekan, ammo_12x76_dart 
 
 ;-----------------------------------------------------------------------------------
-;базовая дисперсия
-fire_dispersion_base		= 0.5 	;угол (в градусах) базовой дисперсии оружия (оружия зажатого в тисках)
+;aaciaay aenia?ney
+fire_dispersion_base		= 0.5 	;oaie (a a?aaonao) aaciaie aenia?nee i?o?ey (i?o?ey ca?aoiai a oeneao)
 control_inertion_factor		= 1.2f
 
-;отдача
-cam_relax_speed         	= 8.0	;скорость возврата в исходное положение
-cam_dispersion          	= 5.0	;увеличения угла (в градусах) с каждым выстрелом
-cam_dispersion_inc		= 0.5	;увеличениe cam_dispersion с каждым выстрелом
-cam_dispertion_frac		= 1.0	;ствол будет подыматься на cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
-cam_max_angle			= 12.0	;максимальный угол отдачи
+;ioaa?a
+cam_relax_speed         	= 8.0	;nei?inou aica?aoa a enoiaiia iiei?aiea
+cam_dispersion          	= 5.0	;oaaee?aiey oaea (a a?aaonao) n ea?aui auno?aeii
+cam_dispersion_inc		= 0.5	;oaaee?aiee cam_dispersion n ea?aui auno?aeii
+cam_dispertion_frac		= 1.0	;noaie aoaao iiauiaouny ia cam_dispersion*cam_dispertion_frac +- cam_dispersion*(1-cam_dispertion_frac)
+cam_max_angle			= 12.0	;iaeneiaeuiue oaie ioaa?e
 cam_max_angle_horz		= 30.0	;(degree) maximum shot horizontal degree 
 cam_step_angle_horz		= 6.0	;(degree) size of step camera moved in horizontal position while shooting
 
-fire_dispersion_condition_factor = 5	;увеличение дисперсии в процентах при максимальном износе 
-misfire_probability 		= 0.005	;вероятность осечки при максимальном износе 
+fire_dispersion_condition_factor = 5	;oaaee?aiea aenia?nee a i?ioaioao i?e iaeneiaeuiii eciina 
+misfire_probability 		= 0.005	;aa?iyoiinou ina?ee i?e iaeneiaeuiii eciina 
 misfire_condition_k			= 0.05
-condition_shot_dec 			= 0.0003 ;увеличение износа при каждом выстреле
+condition_shot_dec 			= 0.0003 ;oaaee?aiea eciina i?e ea?aii auno?aea
 ;-----------------------------------------------------------------------------------
 
 hand_dependence 	 		= 1
@@ -95,17 +95,17 @@ hit_impulse      		= 240
 hit_type 			= fire_wound
 
 fire_distance           = 50 ;1000
-bullet_speed			= 320	;начальная скорость пули
+bullet_speed			= 320	;ia?aeuiay nei?inou ioee
 rpm                     = 150
 ; end ttc
 
 hud                      	= wpn_spas12_hud
 normal                   	= 0, 1, 0
 position                 	= -0.024, -0.081, 0.
-orientation              	= 0, 0, 0      ;значение устанавливается в градусах
+orientation              	= 0, 0, 0      ;cia?aiea onoaiaaeeaaaony a a?aaonao
 
 ;--STRAP PARAMETERS-----------------------------------------------------------------
-;под мишкой
+;iia ieoeie
 strap_position         		= -0.26,-0.10,0.05			; position (offset) and orientation of the weapon when it is strapped
 strap_orientation      		= -15,-9,110				; (3rd person view in degrees)
 strap_bone0					= bip01_spine2
@@ -131,7 +131,7 @@ grenade_launcher_status		= 0
 zoom_enabled				= true
 scope_zoom_factor	    	= 55
 
-;звуки
+;caoee
 snd_shoot_duplet			= weapons\toz34_shoot_both
 snd_draw				= weapons\spas12\spas12_draw
 snd_holster				= weapons\shotgun_holster
@@ -190,4 +190,3 @@ gl_hud_offset_rot 			= 0,0,0
 
 lean_hud_offset_pos        		= 0,0,0
 lean_hud_offset_rot        		= 0,0,0
-
