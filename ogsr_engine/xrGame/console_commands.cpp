@@ -1316,7 +1316,7 @@ void CCC_RegisterCommands()
 	CMD3(CCC_Mask,			"g_unlimitedammo",		&psActorFlags,	AF_UNLIMITEDAMMO);
 	CMD3(CCC_Mask,			"g_ammunition_on_belt",	&psActorFlags,	AF_AMMO_ON_BELT);
 	CMD3(CCC_Mask,			"g_3d_scopes",			&psActorFlags,	AF_3D_SCOPES); //3д прицелы дерьмо ебаное
-	CMD4(CCC_Integer, "g_3d_scopes_fps_factor", &g_3dscopes_fps_factor, 2, 5);
+	CMD4(CCC_Integer, "g_3d_scopes_fps_factor", &g_3dscopes_fps_factor, 2, 15);
 	CMD3(CCC_Mask,			"g_crosshair_dbg",		&psActorFlags,	AF_CROSSHAIR_DBG);
 	CMD1(CCC_TimeFactor,	"time_factor")	
 	CMD1(CCC_SetWeather,	"set_weather");
