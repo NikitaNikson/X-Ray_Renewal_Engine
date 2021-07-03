@@ -334,7 +334,7 @@ void CWeaponMagazined::ReloadMagazine()
 	m_dwAmmoCurrentCalcFrame = 0;	
 
 	//устранить осечку при перезарядке
-	if(IsMisfire())	bMisfire = false;
+	bMisfire = false;
 	
 	//переменная блокирует использование
 	//только разных типов патронов
