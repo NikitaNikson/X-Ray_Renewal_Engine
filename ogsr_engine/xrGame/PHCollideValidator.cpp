@@ -2,6 +2,8 @@
 #include "PHObject.h"
 #include "phcollidevalidator.h"
 
+#include "../build_config_defines.h"
+
 CGID CPHCollideValidator::freeGroupID=0;
 _flags<CLClassBits> CPHCollideValidator::ClassFlags={CLClassBits(0)};	
 _flags<CLClassBits> CPHCollideValidator::ClassNCFlags={CLClassBits(0)};

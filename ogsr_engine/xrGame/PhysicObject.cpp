@@ -7,6 +7,7 @@
 #include "..\Include/xrRender/KinematicsAnimated.h"
 #include "../xr_3da/xr_collide_form.h"
 #include "game_object_space.h"
+#include "../build_config_defines.h"
 
 #ifdef ANIMATED_PHYSICS_OBJECT_SUPPORT
 	#include "PhysicsShellAnimator.h"

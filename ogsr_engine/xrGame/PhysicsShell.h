@@ -6,6 +6,7 @@
 #include "PhysicsCommon.h"
 #include "alife_space.h"
 #include "script_export_space.h"
+#include "../build_config_defines.h"
 
 
 class CPhysicsJoint;

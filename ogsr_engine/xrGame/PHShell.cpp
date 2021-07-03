@@ -17,6 +17,7 @@
 #include "PHShell.h"
 #include "PHCollideValidator.h"
 #include "PHElementInline.h"
+#include "../build_config_defines.h"
 
 #ifdef ANIMATED_PHYSICS_OBJECT_SUPPORT
 	#include "PhysicsShellAnimator.h"

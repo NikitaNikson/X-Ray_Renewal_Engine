@@ -11,6 +11,7 @@
 #include "gameobject.h"
 #include "physicsshellholder.h"
 #include "../Include/xrRender/Kinematics.h"
+#include "../build_config_defines.h"
 
 extern CPHWorld			*ph_world;
 CPhysicsShell::~CPhysicsShell()
