@@ -218,13 +218,6 @@ void CWeaponShotgun::UpdateSounds	()
 	if (m_sndClose.playing())        m_sndClose.set_position        (get_LastFP());
 }
 
-#ifdef DUPLET_STATE_SWITCH
-void CWeaponShotgun::SwitchDuplet()
-{
-	is_duplet_enabled = !is_duplet_enabled;
-}
-#endif
-
 bool CWeaponShotgun::Action			(s32 cmd, u32 flags) 
 {
 #ifdef DUPLET_STATE_SWITCH
