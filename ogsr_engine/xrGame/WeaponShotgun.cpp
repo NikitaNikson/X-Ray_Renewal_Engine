@@ -229,11 +229,11 @@ bool CWeaponShotgun::Action			(s32 cmd, u32 flags)
 {
 #ifdef DUPLET_STATE_SWITCH
 
-	if (is_duplet_enabled)
+	if (!m_bTriStateReload)
 	{
 		switch (cmd)
 		{
-		case kWPN_FIRE:
+		case kWPN_ZOOM:
 		{
 			if (flags&CMD_START)
 			{
