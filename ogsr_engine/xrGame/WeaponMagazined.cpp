@@ -702,7 +702,7 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 
 void CWeaponMagazined::MyLittleReload() //-> i-love-kfc
 {
-	if (iAmmoElapsed == 0 && m_bcartridge_in_the_barrel && iMagazineSize != 1)
+	if (iAmmoElapsed == 0 && m_bcartridge_in_the_barrel && !smart_cast<CWeaponMagazinedWGrenade*>(this)->m_bGrenadeMode)
 	{
 		--iMagazineSize;
 		ReloadMagazine();
