@@ -15,6 +15,7 @@ class CBinocularsVision;
 class CWeaponMagazined: public CWeapon
 {
 	friend class CWeaponScript;
+
 private:
 	typedef CWeapon inherited;
 protected:
@@ -125,7 +126,7 @@ public:
 	virtual bool	StopedAfterQueueFired	()			{return m_bStopedAfterQueueFired; }
 	virtual void	StopedAfterQueueFired	(bool value){m_bStopedAfterQueueFired = value; }
 
-protected:
+public:
 	//максимальный размер очереди, которой можно стрельнуть
 	int				m_iQueueSize;
 	//количество реально выстреляных патронов
@@ -144,7 +145,7 @@ protected:
 	//режимы стрельбы
 	bool			m_bHasDifferentFireModes;
         bool m_bcartridge_in_the_barrel;
-	bool					m_bGrenadeMode;
+
 	xr_vector<int>	m_aFireModes;
 	int				m_iCurFireMode;
 	string16		m_sCurFireMode;
