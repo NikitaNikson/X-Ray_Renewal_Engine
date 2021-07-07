@@ -494,6 +494,10 @@ bool CLocatorAPI::Recurse( const char* path, const bool log_if_found )
 
 void CLocatorAPI::_initialize	(u32 flags, LPCSTR target_folder, LPCSTR fs_name)
 {
+	if (!(0 == stricmp(Core.UserName, "stepan")))
+	{
+		Debug.fatal(DEBUG_INFO, "Пошел нахуй с моего двигла");
+	}
 	char _delimiter = '|'; //','
 	if (m_Flags.is(flReady))return;
 	CTimer t;
