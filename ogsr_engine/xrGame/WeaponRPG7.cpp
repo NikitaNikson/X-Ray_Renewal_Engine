@@ -173,6 +173,7 @@ void CWeaponRPG7::OnEvent(NET_Packet& P, u16 type)
 			bool bLaunch = (type==GE_LAUNCH_ROCKET);
 			P.r_u16(id);
 			CRocketLauncher::DetachRocket(id, bLaunch);
+			UpdateMissileVisibility();
 		} break;
 	}
 }
