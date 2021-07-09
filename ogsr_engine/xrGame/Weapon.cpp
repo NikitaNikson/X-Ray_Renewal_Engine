@@ -1001,6 +1001,7 @@ bool CWeapon::Action(s32 cmd, u32 flags)
 
 					if (l_newType != m_ammoType)
 					{
+						bAmmoTypeChangingStatus = true;
 						m_set_next_ammoType_on_reload = l_newType;
 						if (OnServer()) Reload();
 					}

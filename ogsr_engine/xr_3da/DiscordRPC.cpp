@@ -29,7 +29,7 @@ void DiscordRPC::Init()
 	}
 
 	DiscordEventHandlers nullHandlers{};
-	Discord_Initialize("777186147456778272", &nullHandlers, TRUE, nullptr);
+	Discord_Initialize("862971629810221086", &nullHandlers, TRUE, nullptr);
 
 	start_time = time(nullptr);
 }

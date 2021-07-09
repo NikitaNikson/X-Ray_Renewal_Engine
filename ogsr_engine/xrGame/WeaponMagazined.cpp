@@ -702,7 +702,7 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 
 void CWeaponMagazined::MyLittleReload() //-> i-love-kfc
 {
-	if (iAmmoElapsed == 0 && m_bcartridge_in_the_barrel && !IsGrenadeMode())
+	if ((iAmmoElapsed == 0 || bAmmoTypeChangingStatus) && m_bcartridge_in_the_barrel && !IsGrenadeMode())
 	{
 		--iMagazineSize;
 		ReloadMagazine();
@@ -712,6 +712,7 @@ void CWeaponMagazined::MyLittleReload() //-> i-love-kfc
 	{
 		ReloadMagazine();
 	}
+	bAmmoTypeChangingStatus = false;
 	HUD_SOUND::StopSound(sndReload);
 	HUD_SOUND::StopSound(sndReloadPartly);
 	SwitchState( eIdle );
