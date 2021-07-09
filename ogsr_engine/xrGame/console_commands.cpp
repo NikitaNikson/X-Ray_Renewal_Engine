@@ -1162,6 +1162,9 @@ public:
 	}
 };
 
+#include "Weapon.h"
+#include "ActorCondition.h"
+#include "HudItem.h"
 
 void CCC_RegisterCommands()
 {
@@ -1175,7 +1178,10 @@ void CCC_RegisterCommands()
 
 	CMD3(CCC_Mask,				"g_dof_scope",			&psActorFlags,	AF_DOF_SCOPE);
 	CMD3(CCC_Mask,				"g_dof_zoom",			&psActorFlags,	AF_DOF_ZOOM);
-	CMD3(CCC_Mask,				"g_build_bobbing",			&psActorFlags,	AF_BUILD_BOBBING);
+	if (Core.Features.test(xrCore::Feature::wpn_bobbing))
+	{
+		CMD3(CCC_Mask,				"g_build_bobbing",			&psActorFlags,	AF_BUILD_BOBBING);
+	}
 	CMD4( CCC_Integer, "g_dof_zoom_far",  &g_dof_zoom_far,  10, 100 );
 	CMD4( CCC_Integer, "g_dof_zoom_near", &g_dof_zoom_near, 10, 100 );
 
