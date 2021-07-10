@@ -138,6 +138,10 @@ float cam_HeightInterpolationSpeed = 8.f;
 #include "physics.h"
 #include "PHActivationShape.h"
 #include "debug_renderer.h"
+#include "Actor_Flags.h"
+#include "MainMenu.h"
+#include "HudItem.h"
+
 void CActor::cam_Update(float dt, float fFOV)
 {
 /* перенесено ниже
@@ -153,6 +157,10 @@ void CActor::cam_Update(float dt, float fFOV)
 			psHUD_FOV = pWeapon->GetHudFov();
 		else
 			psHUD_FOV = psHUD_FOV_def;
+
+		if (!MainMenu()->IsActive() && pWeapon)
+			if (pWeapon->IsZoomed() && pWeapon->SecondVPEnabled())
+				psHUD_FOV = 0.25f;
 	}
 	//--#SM+#--
 
