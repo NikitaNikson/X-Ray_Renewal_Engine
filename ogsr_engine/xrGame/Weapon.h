@@ -345,7 +345,6 @@ protected:
 	virtual void			UpdateXForm				();
 
 	float					m_fLR_MovingFactor; // !!!!
-    float m_fLR_CameraFactor; // Фактор бокового наклона худа при движении камеры [-1; +1]
 	Fvector					m_strafe_offset[3][2]; //pos,rot,data/ normal,aim-GL --#SM+#--
 
 	virtual	u8				GetCurrentHudOffsetIdx	() override;

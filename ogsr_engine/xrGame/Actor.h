@@ -394,10 +394,6 @@ protected:
 	// для взаимодействия с другими персонажами 
 	// или предметами
 	///////////////////////////////////////////
-public: //--#SM+#--
-    float fFPCamYawMagnitude;
-    float fFPCamPitchMagnitude;
-
 public:
 	virtual void			feel_touch_new				(CObject* O);
 	virtual void			feel_touch_delete			(CObject* O);
