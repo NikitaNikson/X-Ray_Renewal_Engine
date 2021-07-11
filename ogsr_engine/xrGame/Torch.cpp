@@ -196,6 +196,7 @@ void CTorch::Switch()
 
 void CTorch::Switch	(bool light_on)
 {
+	CActor* pA = smart_cast<CActor*>(H_Parent());
 	m_switched_on			= light_on;
 	if (can_use_dynamic_lights())
 	{
@@ -212,7 +213,7 @@ void CTorch::Switch	(bool light_on)
 		pVisual->LL_SetBoneVisible			(bi,	light_on,	TRUE);
 		pVisual->CalculateBones				(TRUE);
 	}
-	HUD_SOUND::PlaySound(m_FlashlightSwitchSnd, Actor()->Position(), NULL, true, false);
+	HUD_SOUND::PlaySound(m_FlashlightSwitchSnd, pA->Position(), pA, true, false);
 }
 
 BOOL CTorch::net_Spawn(CSE_Abstract* DC) 
