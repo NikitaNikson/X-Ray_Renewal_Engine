@@ -43,7 +43,7 @@ extern ENGINE_API Fvector3 w_timers;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CWeapon::CWeapon(LPCSTR name) : m_fLR_MovingFactor(0.f), m_strafe_offset{}
+CWeapon::CWeapon(LPCSTR name) : m_fLR_MovingFactor(0.f), m_fLR_CameraFactor(0.f), m_strafe_offset{}
 {
 	SetState				(eHidden);
 	SetNextState			(eHidden);
@@ -1752,6 +1752,7 @@ void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
 
 	// Боковой стрейф с оружием
 	clamp(idx, 0ui8, 1ui8);
+	bool bForAim = (idx == 1);
 
 	// Рассчитываем фактор боковой ходьбы
 	float fStrafeMaxTime = /*hi->m_measures.*/m_strafe_offset[2][idx].y; // Макс. время в секундах, за которое мы наклонимся из центрального положения
@@ -1760,15 +1761,43 @@ void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
 
 	float fStepPerUpd = Device.fTimeDelta / fStrafeMaxTime; // Величина изменение фактора поворота
 
+    // Добавляем боковой наклон от движения камеры
+    float fCamReturnSpeedMod = 1.5f; // Восколько ускоряем нормализацию наклона, полученного от движения камеры (только от бедра)
+    float fCamLimitNoAim = 0.5f; // Максимальный фактор наклона от камеры от бедра
+    float fYMag = pActor->fFPCamYawMagnitude;
+
+    if (fYMag != 0.0f)
+    { //--> Камера крутится по оси Y
+        m_fLR_CameraFactor -= (fYMag * 0.025f);
+
+        float fCamLimitBlend = 1.0f - ((1.0f - fCamLimitNoAim) * (1.0f - m_fZoomRotationFactor));
+        clamp(m_fLR_CameraFactor, -fCamLimitBlend, fCamLimitBlend);
+    }
+    else
+    { //--> Камера не поворачивается - убираем наклон
+        if (m_fLR_CameraFactor < 0.0f)
+        {
+            m_fLR_CameraFactor += fStepPerUpd * (bForAim ? 1.0f : fCamReturnSpeedMod);
+            clamp(m_fLR_CameraFactor, -1.0f, 0.0f);
+        }
+        else
+        {
+            m_fLR_CameraFactor -= fStepPerUpd * (bForAim ? 1.0f : fCamReturnSpeedMod);
+            clamp(m_fLR_CameraFactor, 0.0f, 1.0f);
+        }
+    }
+
+    // Добавляем боковой наклон от ходьбы вбок
+    float fChangeDirSpeedMod = 3; // Восколько быстро меняем направление направление наклона, если оно в другую сторону от текущего
 	u32 iMovingState = pActor->MovingState();
 	if ((iMovingState & mcLStrafe) != 0)
 	{ // Движемся влево
-		float fVal = (m_fLR_MovingFactor > 0.f ? fStepPerUpd * 3 : fStepPerUpd);
+		float fVal = (m_fLR_MovingFactor > 0.f ? fStepPerUpd * fChangeDirSpeedMod : fStepPerUpd);
 		m_fLR_MovingFactor -= fVal;
 	}
 	else if ((iMovingState & mcRStrafe) != 0)
 	{ // Движемся вправо
-		float fVal = (m_fLR_MovingFactor < 0.f ? fStepPerUpd * 3 : fStepPerUpd);
+		float fVal = (m_fLR_MovingFactor < 0.f ? fStepPerUpd * fChangeDirSpeedMod : fStepPerUpd);
 		m_fLR_MovingFactor += fVal;
 	}
 	else
@@ -1787,6 +1816,10 @@ void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
 
 	clamp(m_fLR_MovingFactor, -1.0f, 1.0f); // Фактор боковой ходьбы не должен превышать эти лимиты
 
+    // Вычисляем и нормализируем итоговый фактор наклона
+    float fLR_Factor = m_fLR_MovingFactor + m_fLR_CameraFactor;
+    clamp(fLR_Factor, -1.0f, 1.0f); // Фактор боковой ходьбы не должен превышать эти лимиты
+
 	// Производим наклон ствола для нормального режима и аима
 	for (int _idx = 0; _idx <= 1; _idx++)
 	{
@@ -1797,13 +1830,13 @@ void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
 		Fvector curr_offs, curr_rot;
 
 		// Смещение позиции худа в стрейфе
-		curr_offs = m_strafe_offset[0][_idx]; //pos
-		curr_offs.mul(m_fLR_MovingFactor);                   // Умножаем на фактор стрейфа
+        curr_offs = m_strafe_offset[0][_idx]; // pos
+        curr_offs.mul(fLR_Factor); // Умножаем на фактор стрейфа
 
 		// Поворот худа в стрейфе
-		curr_rot = m_strafe_offset[1][_idx]; //rot
-		curr_rot.mul(-PI / 180.f);                          // Преобразуем углы в радианы
-		curr_rot.mul(m_fLR_MovingFactor);                   // Умножаем на фактор стрейфа
+        curr_rot = m_strafe_offset[1][_idx]; // rot
+        curr_rot.mul(-PI / 180.f); // Преобразуем углы в радианы
+        curr_rot.mul(fLR_Factor); // Умножаем на фактор стрейфа
 
 		if (_idx == 0)
 		{ // От бедра
