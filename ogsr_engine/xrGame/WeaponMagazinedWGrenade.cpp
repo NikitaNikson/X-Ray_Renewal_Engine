@@ -658,6 +658,11 @@ void CWeaponMagazinedWGrenade::PlayAnimReload()
 		if (bMisfire && (AnimationExist("anim_misfire_gl") || AnimationExist("anm_misfire_w_gl")))
 		{
 			PlayHUDMotion("anim_misfire_gl", "anm_misfire_w_gl", TRUE, nullptr, GetState());
+
+			// Shell Drop
+			Fvector vel;
+			PHGetLinearVell(vel);
+			OnShellDrop(get_LastSP(), vel);
 		}
 		else if (IsPartlyReloading())
 		{

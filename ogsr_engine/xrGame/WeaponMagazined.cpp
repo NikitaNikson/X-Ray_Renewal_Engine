@@ -1233,6 +1233,11 @@ void CWeaponMagazined::PlayAnimReload()
 	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
 	{
 		PlayHUDMotion("anim_misfire", "anm_misfire", TRUE, nullptr, GetState());
+
+		// Shell Drop
+		Fvector vel;
+		PHGetLinearVell(vel);
+		OnShellDrop(get_LastSP(), vel);
 	}
 	else
 	{
