@@ -93,6 +93,9 @@ void CWeaponShotgun::Fire2End ()
 
 void CWeaponShotgun::OnShotBoth()
 {
+	if (ParentIsActor() ) //-> Если ГГ бегает, останавливаем его
+		g_actor->set_state_wishful(g_actor->get_state_wishful() & (~mcSprint) );
+
 	//если патронов меньше, чем 2 
 	if(iAmmoElapsed < iMagazineSize) 
 	{ 
@@ -107,7 +110,10 @@ void CWeaponShotgun::OnShotBoth()
 	AddShotEffector		();
 	
 	// анимация дуплета
-	PlayHUDMotion("anim_shoot_both", "anm_shots_both", false, this, GetState());
+	if(AnimationExist("anim_shoot_both") || AnimationExist("anm_shots_both")) //-> Если такой анимации нету, используем обычную анимацию выстрела
+		PlayHUDMotion("anim_shoot_both", "anm_shots_both", false, this, GetState());
+	else
+		PlayHUDMotion("anm_shot_1", "anim_shot_1", false, this, GetState());
 	
 	// Shell Drop
 	Fvector vel; 
@@ -230,7 +236,13 @@ bool CWeaponShotgun::Action			(s32 cmd, u32 flags)
 		{
 			if (flags&CMD_START)
 			{
+				CheckForMisfire();
 				if (IsPending()) return false;
+				if (IsMisfire())
+				{
+					SwitchState(eMisfire);
+					return false;
+				}
 				Fire2Start();
 			}
 			else
