@@ -177,9 +177,9 @@ void CWeaponKnife::OnAnimationEnd(u32 state)
 			{
 				m_attackStart = false;
 				if (GetState() == eFire)
-					time = PlayHUDMotion("anm_attack_end", FALSE, this, state);
+					time = PlayHUDMotion("anim_shoot1_end", "anm_attack_end", FALSE, this, state);
 				else // eFire2
-					time = PlayHUDMotion("anm_attack2_end", FALSE, this, state);
+					time = PlayHUDMotion("anim_shoot2_end", "anm_attack2_end", FALSE, this, state);
 
 				Fvector	p1, d; 
 				p1.set(get_LastFP()); 
@@ -261,11 +261,6 @@ void CWeaponKnife::Fire2Start ()
 {
 	inherited::Fire2Start();
 	SwitchState(eFire2);
-
-	if (ParentIsActor())
-	{
-		Actor()->set_state_wishful(Actor()->get_state_wishful() & (~mcSprint));
-	}
 }
 
 
