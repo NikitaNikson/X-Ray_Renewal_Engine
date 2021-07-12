@@ -688,7 +688,7 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 	{
 	    case eReload:
 	    {
-			if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+			if (bMisfire && AnimationExist("anm_misfire"))
 				MyLittleMisfire();
 			else
 				MyLittleReload();
@@ -804,7 +804,7 @@ void CWeaponMagazined::switch2_Empty()
 }
 void CWeaponMagazined::PlayReloadSound()
 {
-	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+	if (bMisfire && AnimationExist("anm_misfire"))
 		PlaySound(sndMisfire, get_LastFP());
 	else if (IsPartlyReloading() && sndReloadPartlyExist)
 		PlaySound(sndReloadPartly, get_LastFP());
@@ -1217,22 +1217,22 @@ void CWeaponMagazined::ApplySilencerKoeffs	()
 void CWeaponMagazined::PlayAnimShow()
 {
 	VERIFY(GetState()==eShowing);
-	PlayHUDMotion("anim_draw", "anm_show", false, this, GetState());
+	PlayHUDMotion("anm_show", false, this, GetState());
 }
 
 void CWeaponMagazined::PlayAnimHide()
 {
 	VERIFY(GetState()==eHiding);
-	PlayHUDMotion("anim_holster", "anm_hide", true, this, GetState());
+	PlayHUDMotion("anm_hide", true, this, GetState());
 }
 
 
 void CWeaponMagazined::PlayAnimReload()
 {
 	VERIFY(GetState() == eReload);
-	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+	if (bMisfire && AnimationExist("anm_misfire"))
 	{
-		PlayHUDMotion("anim_misfire", "anm_misfire", TRUE, nullptr, GetState());
+		PlayHUDMotion("anm_misfire", TRUE, nullptr, GetState());
 
 		// Shell Drop
 		Fvector vel;
@@ -1243,24 +1243,24 @@ void CWeaponMagazined::PlayAnimReload()
 	{
 		if (IsPartlyReloading())
 		{
-			if (AnimationExist("anim_reload_partly") || AnimationExist("anm_reload_partly"))
-				PlayHUDMotion("anim_reload_partly", "anm_reload_partly", TRUE, nullptr, GetState());
+			if (AnimationExist("anm_reload_partly"))
+				PlayHUDMotion("anm_reload_partly", TRUE, nullptr, GetState());
 			else
-				PlayHUDMotion("anim_reload", "anm_reload", TRUE, nullptr, GetState());
+				PlayHUDMotion("anm_reload", TRUE, nullptr, GetState());
 		}
 		else
 		{
 			if (AnimationExist("anm_reload_empty"))
 				PlayHUDMotion("anm_reload_empty", TRUE, nullptr, GetState());
 			else
-				PlayHUDMotion("anim_reload", "anm_reload", TRUE, nullptr, GetState());
+				PlayHUDMotion("anm_reload", TRUE, nullptr, GetState());
 		}
 	}
 }
 
 void CWeaponMagazined::PlayAnimAim()
 { 
-	PlayHUDMotion("anim_idle_aim", "anm_idle_aim", true, nullptr, GetState());
+	PlayHUDMotion("anm_idle_aim", true, nullptr, GetState());
 }
 
 void CWeaponMagazined::PlayAnimIdle()
@@ -1279,7 +1279,7 @@ void CWeaponMagazined::PlayAnimIdle()
 void CWeaponMagazined::PlayAnimShoot()
 {
 	VERIFY(GetState()==eFire || GetState()==eFire2);
-	PlayHUDMotion("anim_shoot", "anm_shots", false, this, GetState());
+	PlayHUDMotion("anm_shots", false, this, GetState());
 }
 
 void CWeaponMagazined::OnZoomIn			()

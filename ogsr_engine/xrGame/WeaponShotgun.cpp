@@ -110,10 +110,10 @@ void CWeaponShotgun::OnShotBoth()
 	AddShotEffector		();
 	
 	// анимация дуплета
-	if(AnimationExist("anim_shoot_both") || AnimationExist("anm_shots_both")) //-> Если такой анимации нету, используем обычную анимацию выстрела
-		PlayHUDMotion("anim_shoot_both", "anm_shots_both", false, this, GetState());
+	if(AnimationExist("anm_shots_both")) //-> Если такой анимации нету, используем обычную анимацию выстрела
+		PlayHUDMotion("anm_shots_both", false, this, GetState());
 	else
-		PlayHUDMotion("anm_shot_1", "anim_shot_1", false, this, GetState());
+		PlayHUDMotion("anm_shot_1", false, this, GetState());
 	
 	// Shell Drop
 	Fvector vel; 
@@ -359,7 +359,7 @@ void CWeaponShotgun::OnStateSwitch	(u32 S, u32 oldState)
 
 void CWeaponShotgun::switch2_StartReload()
 {
-	if (!bMisfire || (!AnimationExist("anim_misfire") && !AnimationExist("anm_misfire")))
+	if (!bMisfire || !AnimationExist("anm_misfire"))
 	{
 		PlaySound			(m_sndOpen,get_LastFP());
 		PlayAnimOpenWeapon	();
@@ -374,7 +374,7 @@ void CWeaponShotgun::switch2_StartReload()
 
 void CWeaponShotgun::switch2_AddCartgidge	()
 {
-	if (!bMisfire || (!AnimationExist("anim_misfire") && !AnimationExist("anm_misfire")))
+	if (!bMisfire || !AnimationExist("anm_misfire"))
 	{
 		PlaySound	(m_sndAddCartridge,get_LastFP());
 	}
@@ -388,7 +388,7 @@ void CWeaponShotgun::switch2_AddCartgidge	()
 
 void CWeaponShotgun::switch2_EndReload	()
 {
-	if (!bMisfire || (!AnimationExist("anim_misfire") && !AnimationExist("anm_misfire")))
+	if (!bMisfire || !AnimationExist("anm_misfire"))
 	{
 		PlaySound			(m_sndClose,get_LastFP());
 		PlayAnimCloseWeapon	();
@@ -406,20 +406,20 @@ void CWeaponShotgun::PlayAnimOpenWeapon()
 {
 	VERIFY(GetState()==eReload);
 
-	PlayHUDMotion("anim_open_weapon", "anm_open", FALSE, this, GetState());
+	PlayHUDMotion("anm_open", FALSE, this, GetState());
 }
 
 void CWeaponShotgun::PlayAnimAddOneCartridgeWeapon()
 {
 	VERIFY(GetState()==eReload);
 
-	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+	if (bMisfire && AnimationExist("anm_misfire"))
 	{
-		PlayHUDMotion("anim_misfire", "anm_misfire", FALSE, this, GetState());
+		PlayHUDMotion("anm_misfire", FALSE, this, GetState());
 	}
 	else
 	{
-	PlayHUDMotion("anim_add_cartridge", "anm_add_cartridge", FALSE, this, GetState());
+	PlayHUDMotion("anm_add_cartridge", FALSE, this, GetState());
 	}
 }
 
@@ -427,7 +427,7 @@ void CWeaponShotgun::PlayAnimCloseWeapon()
 {
 	VERIFY(GetState()==eReload);
 
-	PlayHUDMotion("anim_close_weapon", "anm_close", FALSE, this, GetState());
+	PlayHUDMotion("anm_close", FALSE, this, GetState());
 }
 
 bool CWeaponShotgun::HaveCartridgeInInventory( u8 cnt ) {
@@ -463,11 +463,11 @@ bool CWeaponShotgun::HaveCartridgeInInventory( u8 cnt ) {
 
 u8 CWeaponShotgun::AddCartridge		(u8 cnt)
 {
-	if (bMisfire && (AnimationExist("anim_misfire") || AnimationExist("anm_misfire")))
+	if (bMisfire && AnimationExist("anm_misfire"))
 	{
 		return cnt;
 	}
-	if(IsMisfire())	bMisfire = false;
+	bMisfire = false;
 
 	if(m_set_next_ammoType_on_reload != u32(-1)){
 		m_ammoType						= m_set_next_ammoType_on_reload;
@@ -548,7 +548,7 @@ void CWeaponShotgun::TryReload() {
 
 void CWeaponShotgun::ReloadMagazine() {
   m_dwAmmoCurrentCalcFrame = 0;	
-  if ( IsMisfire() ) bMisfire = false;
+  bMisfire = false;
   if ( !m_pCurrentInventory ) return;
 
   u8 cnt = AddCartridge( 1 );
