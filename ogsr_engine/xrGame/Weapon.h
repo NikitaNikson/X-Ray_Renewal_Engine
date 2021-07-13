@@ -157,7 +157,8 @@ protected:
 	// Weapon fires now
 	bool					bWorking2;
 	// a misfire happens, you'll need to rearm weapon
-	bool					bMisfire;				
+	bool					bMisfire;			
+	bool					bAfterUnjam;
 
 //////////////////////////////////////////////////////////////////////////
 //  Weapon Addons

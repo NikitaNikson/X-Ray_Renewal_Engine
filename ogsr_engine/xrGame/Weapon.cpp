@@ -945,6 +945,7 @@ void CWeapon::SetDefaults()
 
 	m_flags.set			(FUsingCondition, TRUE);
 	bMisfire			= false;
+	bAfterUnjam         = false;
 	m_flagsAddOnState	= 0;
 	m_bZoomMode			= false;
 }
@@ -1236,7 +1237,7 @@ BOOL CWeapon::CheckForMisfire	()
 	if(rnd < mp && iAmmoElapsed != 0) //--> Если в магазине 0 патронов, нехуй клинить оружию
 	{
 		FireEnd();
-
+		
 		bMisfire = true;
 		SwitchState(eMisfire);		
 		
