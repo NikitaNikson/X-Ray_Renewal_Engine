@@ -213,7 +213,11 @@ void CWeaponMagazined::FireStart		()
 	}
 	else 
 		if(eReload!=GetState() && eMisfire!=GetState()) 
-            OnMagazineEmpty();
+		{
+    	    OnMagazineEmpty();
+			if ( smart_cast<CActor*>( this->H_Parent() ) && Level().CurrentViewEntity() == H_Parent() )
+				HUD().GetUI()->AddInfoMessage( "gun_empty" );
+		}
 }
 
 void CWeaponMagazined::FireEnd() 
@@ -685,10 +689,6 @@ void CWeaponMagazined::OnEmptyClick	()
 {
 	PlaySound	(sndEmptyClick,get_LastFP());
 }
-#include "WeaponMagazinedWGrenade.h"
-
-extern class CWeaponMagazinedWGrenade;
-extern bool m_bGrenadeMode;
 
 void CWeaponMagazined::OnAnimationEnd(u32 state) 
 {

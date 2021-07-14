@@ -40,6 +40,7 @@ public:
 
 protected:
 	virtual void	OnAnimationEnd		(u32 state);
+	virtual void	MyLittleMisfire	();
 	void			TriStateReload		();
 	virtual void	OnStateSwitch		(u32 S, u32 oldState);
 

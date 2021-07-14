@@ -287,7 +287,19 @@ bool CWeaponShotgun::Action			(s32 cmd, u32 flags)
 
 void CWeaponShotgun::OnAnimationEnd(u32 state) 
 {
-	if(!m_bTriStateReload || state != eReload)
+	if (!m_bTriStateReload && state == eReload && IsMisfire() && AnimationExist("anm_misfire"))
+	{
+		switch (state)
+		{
+		case eUnJam:
+		{
+			MyLittleMisfire();
+			SwitchState(eIdle);
+			break;
+		}
+		}
+	}
+	if((!m_bTriStateReload && !bAfterUnjam) || state != eReload)
 		return inherited::OnAnimationEnd(state);
 
 	switch(m_sub_state){
@@ -311,13 +323,21 @@ void CWeaponShotgun::OnAnimationEnd(u32 state)
 	};
 }
 
+void CWeaponShotgun::MyLittleMisfire() //-> i-love-kfc
+{
+	bMisfire = false;
+	bAfterUnjam = true;
+	HUD_SOUND::StopSound(sndMisfire);
+	SwitchState(eIdle);
+}
+
 void CWeaponShotgun::Reload() 
 {
 	OnZoomOut();
 	if(m_bTriStateReload){
 		m_stop_triStateReload = false;
 		TriStateReload();
-	}else
+	}else// if(!IsMisfire() || !AnimationExist("anm_misfire"))
 		TryReload();
 }
 
@@ -330,6 +350,18 @@ void CWeaponShotgun::TriStateReload()
 
 void CWeaponShotgun::OnStateSwitch	(u32 S, u32 oldState)
 {
+	if (!m_bTriStateReload && IsMisfire() && AnimationExist("anm_misfire"))
+	{
+		switch (S)
+		{
+		case eUnJam:
+		{
+			switch2_Reload();
+			break;
+		}
+		}
+	}
+
 	if(!m_bTriStateReload || S != eReload){
 		inherited::OnStateSwitch(S, oldState);
 		return;
@@ -535,6 +567,11 @@ void	CWeaponShotgun::net_Import	(NET_Packet& P)
 
 
 void CWeaponShotgun::TryReload() {
+	if (IsMisfire() && AnimationExist("anm_misfire"))
+	{
+		SwitchState(eUnJam);
+		return;
+	}
   if ( m_pCurrentInventory ) {
     if ( HaveCartridgeInInventory( 1 ) || unlimited_ammo() || ( IsMisfire() && iAmmoElapsed ) ) {
       SetPending(TRUE);
