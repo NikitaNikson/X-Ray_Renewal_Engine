@@ -1,9 +1,12 @@
 ////////////////////////////////////////////////////////////////////////////
-//	Module		: weapon_collision.cpp
-//	Created		: 12/10/2012
-//	Modified 	: 12/10/2012
-//	Author		: lost alpha (SkyLoader)
-//	Description	: weapon HUD collision (based on weapon_bobbing.cpp)
+//	Файл		: weapon_collision.cpp
+//	Создан		: 12/10/2012
+//	Изменен 	: 15.07.21
+//	Автор		: lost alpha (SkyLoader)
+//	Описание	: Коллизия худа оружия
+//	
+//	Правки и адаптация под player_hud
+//			i-love-kfc
 ////////////////////////////////////////////////////////////////////////////
 
 #include "stdafx.h"
@@ -51,7 +54,7 @@ void CWeaponCollision::Update(Fmatrix &o, float range)
 		bFirstUpdate		= false;
 	}
 
-	if (range < 0.8f/* && !m_bZoomMode*/) //-> TODO: Придумать, что делать с этим.
+	if (range < 0.8f && !Actor()->IsZoomAimingMode())
 		fReminderNeedDist	= xyz.z - ((1 - range - 0.2) * 0.6);
 	else
 		fReminderNeedDist	= xyz.z;
