@@ -447,6 +447,7 @@
     <ClInclude Include="damage_manager.h" />
     <ClInclude Include="DamageSource.h" />
     <ClInclude Include="player_hud.h" />
+    <ClInclude Include="weapon_collision.h" />
     <ClInclude Include="pose_extrapolation.h" />
     <ClInclude Include="script_actor.h" />
     <ClInclude Include="script_game_object_impl.h" />
@@ -1670,6 +1671,7 @@
     <ClCompile Include="InventoryContainer.cpp" />
     <ClCompile Include="player_hud.cpp" />
     <ClCompile Include="player_hud_tune.cpp" />
+    <ClCompile Include="weapon_collision.cpp" />
     <ClCompile Include="pose_extrapolation.cpp" />
     <ClCompile Include="script_action_wrapper.cpp" />
     <ClCompile Include="action_planner_script.cpp" />

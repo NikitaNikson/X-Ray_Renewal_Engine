@@ -118,6 +118,7 @@ public:
 	virtual		~CEnvelope	();
 
 	float		Evaluate	(float t);
+	float		EvaluateAngle	(float t);
 
 	void		Clear		();
 	void		Save		(IWriter& F);
@@ -132,6 +133,7 @@ public:
     void		FindNearestKey(float t, KeyIt& min, KeyIt& max, float eps);
     void		InsertKey	(float t, float val);                                   
     void		DeleteKey	(float t);
+    void		DeleteLastKeys	(float t);
     BOOL		ScaleKeys	(float from_time, float to_time, float scale_factor, float eps);
     float		GetLength	(float* mn, float* mx);
 

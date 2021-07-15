@@ -2,7 +2,6 @@
 #include "player_hud.h"
 #include "HudItem.h"
 #include "ui_base.h"
-#include "Actor.h"
 #include "physic_item.h"
 #include "ActorEffector.h"
 #include "../xr_3da/IGame_Persistent.h"
@@ -10,6 +9,7 @@
 #include "Weapon.h"
 #include "Actor.h"
 #include "ActorCondition.h"
+#include "hudmanager.h"
 
 player_hud* g_player_hud = nullptr;
 
@@ -449,6 +449,7 @@ u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, co
 player_hud::player_hud()
 {
 	m_transform.identity();
+	m_collision			= xr_new<CWeaponCollision>();
 	if (Core.Features.test(xrCore::Feature::wpn_bobbing))
 		m_bobbing = xr_new<CWeaponBobbing>();
 }
@@ -470,6 +471,9 @@ player_hud::~player_hud()
 		xr_delete(a);
 	}
 	m_pool.clear();
+	
+	xr_delete(m_collision);
+	
 	if (m_bobbing)
 		xr_delete(m_bobbing);
 }
@@ -505,8 +509,6 @@ void player_hud::load(const shared_str& player_hud_sect)
 			m_ancors.push_back(m_model->dcast_PKinematics()->LL_BoneID(_bone));
 		}
 	}
-
-	//	Msg("hands visual changed to[%s] [%s] [%s]", model_name.c_str(), b_reload?"R":"", m_attached_items[0]?"Y":"");
 
 	if (!b_reload)
 	{
@@ -633,6 +635,10 @@ void player_hud::update(const Fmatrix& cam_trans)
 	if (bobbing_allowed())
 		m_bobbing->Update(m_attach_offset, m_attached_items[0]);
 
+	collide::rq_result& RQ = HUD().GetCurrentRayQuery();
+	CActor* pActor;
+		if(pActor)
+		m_collision->Update(m_attach_offset, RQ.range);
 	m_transform.mul(trans, m_attach_offset);
 	// insert inertion here
 

@@ -6107,6 +6107,9 @@
     <ClInclude Include="player_hud.h">
       <Filter>Core\Client\Objects\items &amp; weapons\Weapons\HUD</Filter>
     </ClInclude>
+    <ClInclude Include="weapon_collision.h">
+      <Filter>Core\Client\Objects\items &amp; weapons\Weapons\HUD</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="damage_manager.cpp">
@@ -8913,6 +8916,9 @@
       <Filter>Core\Client\Objects\items &amp; weapons\Weapons\HUD</Filter>
     </ClCompile>
     <ClCompile Include="player_hud_tune.cpp">
+      <Filter>Core\Client\Objects\items &amp; weapons\Weapons\HUD</Filter>
+    </ClCompile>
+    <ClCompile Include="weapon_collision.cpp">
       <Filter>Core\Client\Objects\items &amp; weapons\Weapons\HUD</Filter>
     </ClCompile>
   </ItemGroup>

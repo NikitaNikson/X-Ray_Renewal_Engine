@@ -4,6 +4,7 @@
 #include "../Include/xrRender/Kinematics.h"
 #include "../Include/xrRender/KinematicsAnimated.h"
 #include "actor_defs.h"
+#include "weapon_collision.h"
 
 class player_hud;
 class CHudItem;
@@ -217,12 +218,16 @@ private:
 
 	Fmatrix m_attach_offset;
 
+private:
 	Fmatrix m_transform;
 	IKinematicsAnimated* m_model{};
 	xr_vector<u16> m_ancors;
 	attachable_hud_item* m_attached_items[2]{};
 	xr_vector<attachable_hud_item*> m_pool;
 	CWeaponBobbing* m_bobbing{};
+
+	private:
+		CWeaponCollision *m_collision;
 };
 
 extern player_hud* g_player_hud;
