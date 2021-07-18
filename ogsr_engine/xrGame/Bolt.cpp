@@ -3,6 +3,8 @@
 #include "ParticlesObject.h"
 #include "PhysicsShell.h"
 #include "xr_level_controller.h"
+#include "ai_sounds.h"
+#include "actor.h"
 
 CBolt::CBolt(void) 
 {
@@ -21,7 +23,7 @@ void CBolt::OnH_A_Chield()
 	inherited::OnH_A_Chield();
 	CObject* o= H_Parent()->H_Parent();
 	if(o)SetInitiator(o->ID());
-	
+	//HUD_SOUND::DestroySound(m_ThrowSnd);
 }
 
 void CBolt::OnEvent(NET_Packet& P, u16 type) 
@@ -40,8 +42,10 @@ void CBolt::Deactivate( bool now )
 	Hide( now || ( GetState() == eThrowStart || GetState() == eReady || GetState() == eThrow ) );
 }
 
-void CBolt::Throw() 
+void CBolt::Throw(LPCSTR section) 
 {
+	HUD_SOUND::LoadSound(section, "snd_throw", m_ThrowSnd, SOUND_TYPE_WEAPON_SHOOTING);
+	PlaySound(m_ThrowSnd, Actor()->Position()/* Actor()->Position(), pA, true, false*/);
 	CMissile					*l_pBolt = smart_cast<CMissile*>(m_fake_missile);
 	if(!l_pBolt)				return;
 	l_pBolt->set_destroy_time	(u32(m_dwDestroyTimeMax/phTimefactor));

@@ -210,74 +210,42 @@ u32	CParticleManager::GetParticlesCount	(int effect_id)
 // action
 ParticleAction* CParticleManager::CreateAction(PActionEnum type)
 {
-    ParticleAction* pa = nullptr;
-    switch (type)
-    {
-    case PAAvoidID: pa = xr_new<PAAvoid>();
-        break;
-    case PABounceID: pa = xr_new<PABounce>();
-        break;
-    case PACopyVertexBID: pa = xr_new<PACopyVertexB>();
-        break;
-    case PADampingID: pa = xr_new<PADamping>();
-        break;
-    case PAExplosionID: pa = xr_new<PAExplosion>();
-        break;
-    case PAFollowID: pa = xr_new<PAFollow>();
-        break;
-    case PAGravitateID: pa = xr_new<PAGravitate>();
-        break;
-    case PAGravityID: pa = xr_new<PAGravity>();
-        break;
-    case PAJetID: pa = xr_new<PAJet>();
-        break;
-    case PAKillOldID: pa = xr_new<PAKillOld>();
-        break;
-    case PAMatchVelocityID: pa = xr_new<PAMatchVelocity>();
-        break;
-    case PAMoveID: pa = xr_new<PAMove>();
-        break;
-    case PAOrbitLineID: pa = xr_new<PAOrbitLine>();
-        break;
-    case PAOrbitPointID: pa = xr_new<PAOrbitPoint>();
-        break;
-    case PARandomAccelID: pa = xr_new<PARandomAccel>();
-        break;
-    case PARandomDisplaceID: pa = xr_new<PARandomDisplace>();
-        break;
-    case PARandomVelocityID: pa = xr_new<PARandomVelocity>();
-        break;
-    case PARestoreID: pa = xr_new<PARestore>();
-        break;
-    case PASinkID: pa = xr_new<PASink>();
-        break;
-    case PASinkVelocityID: pa = xr_new<PASinkVelocity>();
-        break;
-    case PASourceID: pa = xr_new<PASource>();
-        break;
-    case PASpeedLimitID: pa = xr_new<PASpeedLimit>();
-        break;
-    case PATargetColorID: pa = xr_new<PATargetColor>();
-        break;
-    case PATargetSizeID: pa = xr_new<PATargetSize>();
-        break;
-    case PATargetRotateID: pa = xr_new<PATargetRotate>();
-        break;
-    case PATargetRotateDID: pa = xr_new<PATargetRotate>();
-        break;
-    case PATargetVelocityID: pa = xr_new<PATargetVelocity>();
-        break;
-    case PATargetVelocityDID: pa = xr_new<PATargetVelocity>();
-        break;
-    case PAVortexID: pa = xr_new<PAVortex>();
-        break;
-    case PATurbulenceID: pa = xr_new<PATurbulence>();
-        break;
-    case PAScatterID: pa = xr_new<PAScatter>();
-        break;
+	ParticleAction* pa			= 0;
+    switch(type){
+    case PAAvoidID:				pa = xr_new<PAAvoid>();				break;
+    case PABounceID:    		pa = xr_new<PABounce>();			break;
+    case PACopyVertexBID:    	pa = xr_new<PACopyVertexB>();		break;
+    case PADampingID:    		pa = xr_new<PADamping>();			break;
+    case PAExplosionID:    		pa = xr_new<PAExplosion>();			break;
+    case PAFollowID:    		pa = xr_new<PAFollow>();			break;
+    case PAGravitateID:    		pa = xr_new<PAGravitate>();			break;
+    case PAGravityID:    		pa = xr_new<PAGravity>();			break;
+    case PAJetID:    			pa = xr_new<PAJet>();				break;
+    case PAKillOldID:    		pa = xr_new<PAKillOld>();			break;
+    case PAMatchVelocityID:    	pa = xr_new<PAMatchVelocity>();		break;
+    case PAMoveID:    			pa = xr_new<PAMove>();				break;
+    case PAOrbitLineID:    		pa = xr_new<PAOrbitLine>();			break;
+    case PAOrbitPointID:    	pa = xr_new<PAOrbitPoint>();		break;
+    case PARandomAccelID:    	pa = xr_new<PARandomAccel>();		break;
+    case PARandomDisplaceID:    pa = xr_new<PARandomDisplace>();	break;
+    case PARandomVelocityID:    pa = xr_new<PARandomVelocity>();	break;
+    case PARestoreID:    		pa = xr_new<PARestore>();			break;
+    case PASinkID:    			pa = xr_new<PASink>();				break;
+    case PASinkVelocityID:    	pa = xr_new<PASinkVelocity>();		break;
+    case PASourceID:    		pa = xr_new<PASource>();			break;
+    case PASpeedLimitID:    	pa = xr_new<PASpeedLimit>();		break;
+    case PATargetColorID:    	pa = xr_new<PATargetColor>();		break;
+    case PATargetSizeID:    	pa = xr_new<PATargetSize>();		break;
+    case PATargetRotateID:    	pa = xr_new<PATargetRotate>();		break;
+    case PATargetRotateDID:    	pa = xr_new<PATargetRotate>();		break;
+    case PATargetVelocityID:    pa = xr_new<PATargetVelocity>(); 	break;
+    case PATargetVelocityDID:   pa = xr_new<PATargetVelocity>();	break;
+    case PAVortexID:    		pa = xr_new<PAVortex>();			break;
+    case PATurbulenceID:		pa = xr_new<PATurbulence>();		break;
+    case PAScatterID:  			pa = xr_new<PAScatter>();			break;
     default: NODEFAULT;
     }
-    pa->type = type;
+    pa->type					= type;
     return pa;
 }
 u32 CParticleManager::LoadActions(int alist_id, IReader& R)

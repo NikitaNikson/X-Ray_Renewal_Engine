@@ -599,7 +599,7 @@ void CWeaponMagazined::state_Fire	(float dt)
 //	Msg("%d && %d && (%d || %d) && (%d || %d)", !m_magazine.empty(), fTime<=0, IsWorking(), m_bFireSingleShot, m_iQueueSize < 0, m_iShotNum < m_iQueueSize);
 	while (!m_magazine.empty() && fTime<=0 && (IsWorking() || m_bFireSingleShot) && (m_iQueueSize < 0 || m_iShotNum < m_iQueueSize))
 	{
-		if ( CheckForMisfire() ) {
+		if ( bMisfire ) {
 			OnEmptyClick();
 			StopShooting();
 			return;
@@ -672,9 +672,13 @@ void CWeaponMagazined::OnShot		()
 	PlayAnimShoot		();
 	
 	// Shell Drop
-	Fvector vel; 
+	CheckForMisfire();
+	Fvector vel;
 	PHGetLinearVell(vel);
-	OnShellDrop					(get_LastSP(), vel);
+	if(!bMisfire)
+	{
+		OnShellDrop					(get_LastSP(), vel);
+	}
 	
 	// Огонь из ствола
 	StartFlameParticles	();

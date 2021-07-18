@@ -35,7 +35,7 @@ namespace PAPI{
 				xr_delete(*it);
 			actions.clear();
 		}
-		IC void			append			(ParticleAction* pa)	{return;	}
+		IC void			append			(ParticleAction* pa)	{R_ASSERT(!m_bLocked);actions.push_back(pa);	}
 		IC bool			empty			()						{return	actions.empty();}
 		IC PAVecIt		begin			()						{return	actions.begin();}
 		IC PAVecIt		end				()						{return actions.end();	}

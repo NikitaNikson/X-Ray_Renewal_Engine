@@ -10,25 +10,26 @@
 constexpr u32	MAX_TRACERS	= (1024*5);
 constexpr float TRACER_SIZE = 0.13f;
 
-//////////////////////////////////////////////////////////////////////
-// Construction/Destruction
-//////////////////////////////////////////////////////////////////////
-#define TRACERS_COLOR_TABLE "tracers_color_table"
 CTracer::CTracer()
 {
 	const char* sh_name = READ_IF_EXISTS(pSettings, r_string, "bullet_manager", "tracer_shader", "effects\\bullet_tracer");
 	const char* tx_name = READ_IF_EXISTS(pSettings, r_string, "bullet_manager", "tracer_texture", "fx\\fx_tracer");
-	sh_Tracer->create(sh_name, tx_name);
+	//LPCSTR sh_name		= pSettings->r_string("bullet_manager", "tracer_shader");
+	//LPCSTR tx_name		= pSettings->r_string("bullet_manager", "tracer_texture");
+	//m_circle_size_k		= pSettings->r_float("bullet_manager", "fire_circle_k");
 
-	m_aColors.clear();
+	sh_Tracer->create	(sh_name, tx_name);
+	
+	m_aColors.clear		();
+	string64			LineName;
 	for (u8 i=0; i<255; i++)
 	{
-		shared_str LineName;
-		LineName.sprintf("color_%d", i);
-		if (!pSettings->line_exist(TRACERS_COLOR_TABLE, LineName)) break;
-		float r, g, b;
-		sscanf(pSettings->r_string(TRACERS_COLOR_TABLE, *LineName),	"%f,%f,%f", &r, &g, &b);		
-		m_aColors.push_back(color_argb_f(1.0f, r, g, b));
+		xr_sprintf						(LineName, "color_%d", i);
+		if (!pSettings->line_exist("tracers_color_table", LineName)) 
+			break;
+		u32 clr = pSettings->r_color	("tracers_color_table", LineName);
+
+		m_aColors.push_back				(clr);
 	};
 }
 
