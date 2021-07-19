@@ -351,6 +351,10 @@ protected:
 	float					m_fLR_MovingFactor; // !!!!
     float m_fLR_CameraFactor; // Фактор бокового наклона худа при движении камеры [-1; +1]
 	Fvector					m_strafe_offset[3][2]; //pos,rot,data/ normal,aim-GL --#SM+#--
+	
+    float m_fLR_ShootingFactor; // Фактор горизонтального сдвига худа при стрельбе [-1; +1]
+    float m_fUD_ShootingFactor; // Фактор вертикального сдвига худа при стрельбе [-1; +1]
+    float m_fBACKW_ShootingFactor; // Фактор сдвига худа в сторону лица при стрельбе [0; +1]
 
 	virtual	u8				GetCurrentHudOffsetIdx	() override;
 	virtual bool			MovingAnimAllowedNow	();
@@ -361,6 +365,8 @@ protected:
 
 	virtual void			LoadFireParams		(LPCSTR section, LPCSTR prefix);
 public:	
+	void AddHUDShootingEffect();
+
 	IC		const Fvector&	get_LastFP				()			{ UpdateFireDependencies(); return m_current_firedeps.vLastFP;	}
 	IC		const Fvector&	get_LastFP2				()			{ UpdateFireDependencies(); return m_current_firedeps.vLastFP2;	}
 	IC		const Fvector&	get_LastFD				()			{ UpdateFireDependencies(); return m_current_firedeps.vLastFD;	}

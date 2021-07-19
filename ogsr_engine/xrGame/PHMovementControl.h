@@ -212,7 +212,11 @@ public:
 	bool				TryPosition				(Fvector& pos);
 	bool				IsCharacterEnabled		()																		{return m_character->IsEnabled()||bExernalImpulse;}
 	void				DisableCharacter		(){m_character->Disable();}
-	void				Calculate				(Fvector& vAccel,const Fvector& camDir, float ang_speed, float jump, float dt, bool bLight);
+	//void				Calculate				(Fvector& vAccel,const Fvector& camDir, float ang_speed, float jump, float dt, bool bLightbool); //--#SM+#--
+	
+    void Calculate(Fvector& vAccel, const Fvector& camDir, float ang_speed, float jump, float dt, bool bLight,
+        bool bNoInterpolate); //--#SM+#--
+	
 	void				Calculate				(const xr_vector<DetailPathManager::STravelPathPoint>& path, //in path
 												float speed,						 //in speed
 												u32& travel_point,					 //in- travel start, out - current trev point

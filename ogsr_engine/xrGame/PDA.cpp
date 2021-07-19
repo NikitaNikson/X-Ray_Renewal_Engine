@@ -146,7 +146,6 @@ BOOL CPda::feel_touch_contact(CObject* O)
 void CPda::OnH_A_Chield() 
 {
 	VERIFY(IsOff());
-
 	//включить PDA только если оно находится у первого владельца
 	if(H_Parent()->ID() == m_idOriginalOwner){
 		TurnOn					();

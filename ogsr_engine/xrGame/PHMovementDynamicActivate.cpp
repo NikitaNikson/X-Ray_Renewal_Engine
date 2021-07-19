@@ -351,7 +351,7 @@ bool CPHMovementControl:: ActivateBoxDynamic(DWORD id,int num_it/*=8*/,int num_s
 	float max_a_vel=M_PI/8.f/fnum_it/fnum_steps/fixed_step;
 	dBodySetForce(GetBody(),0.f,0.f,0.f);
 	dBodySetLinearVel(GetBody(),0.f,0.f,0.f);
-	Calculate(Fvector().set(0,0,0),Fvector().set(1,0,0),0,0,0,0);
+	Calculate(Fvector().set(0,0,0),Fvector().set(1,0,0),0,0,0,0,false);
 	CVelocityLimiter vl(GetBody(),max_vel,max_vel);
 	max_vel=1.f/fnum_it/fnum_steps/fixed_step;
 
@@ -363,7 +363,7 @@ bool CPHMovementControl:: ActivateBoxDynamic(DWORD id,int num_it/*=8*/,int num_s
 ////////////////////////////////////
 	for(int m=0;30>m;++m)
 	{
-		Calculate(Fvector().set(0,0,0),Fvector().set(1,0,0),0,0,0,0);
+		Calculate(Fvector().set(0,0,0),Fvector().set(1,0,0),0,0,0,0,false);
 		EnableCharacter();
 		m_character->ApplyForce(0,ph_world->Gravity()*m_character->Mass(),0);
 		max_depth=0.f;
@@ -385,7 +385,7 @@ bool CPHMovementControl:: ActivateBoxDynamic(DWORD id,int num_it/*=8*/,int num_s
 		ret=false;
 		for(int i=0;num_it>i;++i){
 			max_depth=0.f;
-			Calculate(Fvector().set(0,0,0),Fvector().set(1,0,0),0,0,0,0);
+			Calculate(Fvector().set(0,0,0),Fvector().set(1,0,0),0,0,0,0,false);
 			EnableCharacter();
 			m_character->ApplyForce(0,ph_world->Gravity()*m_character->Mass(),0);
 			ph_world->Step();

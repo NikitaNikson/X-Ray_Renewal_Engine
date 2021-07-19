@@ -316,7 +316,7 @@ void CHudItem::PlayAnimIdle()
 	if (TryPlayAnimIdle())
 		return;
 
-	PlayHUDMotion("anim_idle", "anm_idle", TRUE, nullptr, GetState());
+	PlayHUDMotion("anm_idle", TRUE, nullptr, GetState());
 }
 
 bool CHudItem::TryPlayAnimIdle()
@@ -339,7 +339,7 @@ bool CHudItem::TryPlayAnimIdle()
 				{
 					if (!st.bCrouch)
 					{
-						if (AnimationExist("anim_idle_moving") || AnimationExist("anm_idle_moving"))
+						if (AnimationExist("anm_idle_moving"))
 						{
 							PlayAnimIdleMoving();
 							return true;
@@ -359,7 +359,7 @@ bool CHudItem::TryPlayAnimIdle()
 
 /*void CHudItem::PlayAnimBore()
 {
-	PlayHUDMotion("anim_idle", "anm_bore", TRUE, this, GetState());
+	PlayHUDMotion("anm_bore", TRUE, this, GetState());
 }*/
 
 bool CHudItem::AnimationExist(const shared_str& anim_name) const
@@ -388,20 +388,14 @@ bool CHudItem::AnimationExist(const shared_str& anim_name) const
 
 void CHudItem::PlayAnimIdleMoving()
 { 
-	if (AnimationExist("anm_idle_moving") || AnimationExist("anm_idle"))
-		PlayHUDMotion("anm_idle_moving", "anm_idle", true, nullptr, GetState());
-	else
-		PlayHUDMotion("anim_idle_moving", "anim_idle", true, nullptr, GetState());
+	PlayHUDMotion("anm_idle_moving", "anm_idle", true, nullptr, GetState());
 }
 
 void CHudItem::PlayAnimIdleMovingCrouch() { PlayHUDMotion("anm_idle_moving_crouch", true, nullptr, GetState()); }
 
 void CHudItem::PlayAnimIdleSprint()
 {
-	if (AnimationExist("anm_idle_sprint") || AnimationExist("anm_idle"))
-		PlayHUDMotion("anm_idle_sprint", "anm_idle", true, nullptr, GetState());
-	else
-		PlayHUDMotion("anim_idle_sprint", "anim_idle", true, nullptr, GetState());
+	PlayHUDMotion("anm_idle_sprint", "anm_idle", true, nullptr, GetState());
 }
 
 void CHudItem::OnMovementChanged(ACTOR_DEFS::EMoveCommand cmd)

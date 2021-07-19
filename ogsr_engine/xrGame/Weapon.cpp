@@ -43,7 +43,7 @@ extern ENGINE_API Fvector3 w_timers;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CWeapon::CWeapon(LPCSTR name) : /*mod_name(NULL),*/ m_fLR_MovingFactor(0.f), m_fLR_CameraFactor(0.f), m_strafe_offset{}
+CWeapon::CWeapon(LPCSTR name) : /*mod_name(NULL),*/ m_fLR_MovingFactor(0.f), m_fLR_CameraFactor(0.f), m_fLR_ShootingFactor(0.f), m_fUD_ShootingFactor(0.f), m_fBACKW_ShootingFactor(0.f), m_strafe_offset{}
 {
 	SetState				(eHidden);
 	SetNextState			(eHidden);
@@ -789,6 +789,13 @@ void CWeapon::OnH_B_Independent	(bool just_before_destroy)
 void CWeapon::OnH_A_Independent	()
 {
 	inherited::OnH_A_Independent();
+	
+    m_fLR_ShootingFactor = 0.f;
+    m_fUD_ShootingFactor = 0.f;
+    m_fBACKW_ShootingFactor = 0.f;
+
+    m_fZoomRotationFactor = 0.0f;
+
 	Light_Destroy				();
 };
 
@@ -1715,6 +1722,8 @@ u8 CWeapon::GetCurrentHudOffsetIdx()
 	return hud_item_measures::m_hands_offset_type_normal;
 }
 
+#include "../xrCore/vector.h"
+#include "player_hud.h"
 
 // Обновление координат текущего худа
 void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
@@ -1879,6 +1888,121 @@ void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
 		hud_rotation.translate_over(curr_offs);
 		trans.mulB_43(hud_rotation);
 	}
+
+	static float fAvgTimeDelta = Device.fTimeDelta;
+	attachable_hud_item* hi = HudItemData();
+
+    //============= Сдвиг оружия при стрельбе =============//
+    // Параметры сдвига
+    float fShootingReturnSpeedMod = _lerp(
+		hi->m_measures.m_shooting_params.m_ret_speed,
+		hi->m_measures.m_shooting_params.m_ret_speed_aim,
+        m_fZoomRotationFactor);
+
+    float fShootingBackwOffset = _lerp(
+		hi->m_measures.m_shooting_params.m_shot_offset_BACKW.x,
+		hi->m_measures.m_shooting_params.m_shot_offset_BACKW.y,
+        m_fZoomRotationFactor);
+
+    Fvector4 vShOffsets; // x = L, y = R, z = U, w = D
+    vShOffsets.x = _lerp(
+		hi->m_measures.m_shooting_params.m_shot_max_offset_LRUD.x,
+		hi->m_measures.m_shooting_params.m_shot_max_offset_LRUD_aim.x,
+        m_fZoomRotationFactor);
+    vShOffsets.y = _lerp(
+		hi->m_measures.m_shooting_params.m_shot_max_offset_LRUD.y,
+		hi->m_measures.m_shooting_params.m_shot_max_offset_LRUD_aim.y,
+        m_fZoomRotationFactor);
+    vShOffsets.z = _lerp(
+		hi->m_measures.m_shooting_params.m_shot_max_offset_LRUD.z,
+		hi->m_measures.m_shooting_params.m_shot_max_offset_LRUD_aim.z,
+        m_fZoomRotationFactor);
+    vShOffsets.w = _lerp(
+		hi->m_measures.m_shooting_params.m_shot_max_offset_LRUD.w,
+		hi->m_measures.m_shooting_params.m_shot_max_offset_LRUD_aim.w,
+        m_fZoomRotationFactor);
+
+    // Плавное затухание сдвига от стрельбы (основное, но без линейной никогда не опустит до полного 0.0f)
+    m_fLR_ShootingFactor    *= clampr(1.f - fAvgTimeDelta * fShootingReturnSpeedMod, 0.0f, 1.0f);
+    m_fUD_ShootingFactor    *= clampr(1.f - fAvgTimeDelta * fShootingReturnSpeedMod, 0.0f, 1.0f);
+    m_fBACKW_ShootingFactor *= clampr(1.f - fAvgTimeDelta * fShootingReturnSpeedMod, 0.0f, 1.0f);
+
+    // Минимальное линейное затухание сдвига от стрельбы при покое (горизонталь)
+    {
+        float fRetSpeedMod = fShootingReturnSpeedMod * 0.125f;
+        if (m_fLR_ShootingFactor < 0.0f)
+        {
+            m_fLR_ShootingFactor += fAvgTimeDelta * fRetSpeedMod;
+            clamp(m_fLR_ShootingFactor, -1.0f, 0.0f);
+        }
+        else
+        {
+            m_fLR_ShootingFactor -= fAvgTimeDelta * fRetSpeedMod;
+            clamp(m_fLR_ShootingFactor, 0.0f, 1.0f);
+        }
+    }
+
+    // Минимальное линейное затухание сдвига от стрельбы при покое (вертикаль)
+    {
+        float fRetSpeedMod = fShootingReturnSpeedMod * 0.125f;
+        if (m_fUD_ShootingFactor < 0.0f)
+        {
+            m_fUD_ShootingFactor += fAvgTimeDelta * fRetSpeedMod;
+            clamp(m_fUD_ShootingFactor, -1.0f, 0.0f);
+        }
+        else
+        {
+            m_fUD_ShootingFactor -= fAvgTimeDelta * fRetSpeedMod;
+            clamp(m_fUD_ShootingFactor, 0.0f, 1.0f);
+        }
+    }
+
+    // Минимальное линейное затухание сдвига от стрельбы при покое (вперёд\назад)
+    {
+        float fRetSpeedMod = fShootingReturnSpeedMod * 0.125f;
+        m_fBACKW_ShootingFactor -= fAvgTimeDelta * fRetSpeedMod;
+        clamp(m_fBACKW_ShootingFactor, 0.0f, 1.0f);
+    }
+
+    // Применяем сдвиг от стрельбы к худу
+    {
+        float fLR_lim = (m_fLR_ShootingFactor < 0.0f ? vShOffsets.x : vShOffsets.y);
+        float fUD_lim = (m_fUD_ShootingFactor < 0.0f ? vShOffsets.z : vShOffsets.w);
+
+        Fvector curr_offs;
+        curr_offs = {fLR_lim * m_fLR_ShootingFactor, fUD_lim * -1.f * m_fUD_ShootingFactor, -1.f * fShootingBackwOffset * m_fBACKW_ShootingFactor};
+
+        Fmatrix hud_rotation;
+        hud_rotation.identity();
+        hud_rotation.translate_over(curr_offs);
+        trans.mulB_43(hud_rotation);
+    }
+}
+
+// Добавить эффект сдвига оружия от выстрела
+void CWeapon::AddHUDShootingEffect() 
+{
+    if (IsHidden() || ParentIsActor() == false)
+        return;
+
+    // Отдача назад
+    m_fBACKW_ShootingFactor = 1.0f;
+
+    // Отдача в бока
+    float fPowerMin = 0.0f;
+    attachable_hud_item* hi = HudItemData();
+    if (hi != nullptr)
+    {
+        fPowerMin = clampr(hi->m_measures.m_shooting_params.m_min_LRUD_power, 0.0f, 0.99f);
+    }
+
+    float fPowerRnd = 1.0f - fPowerMin;
+
+    m_fLR_ShootingFactor = ::Random.randF(-fPowerRnd, fPowerRnd);
+    m_fLR_ShootingFactor += (m_fLR_ShootingFactor >= 0.0f ? fPowerMin : -fPowerMin);
+
+    m_fUD_ShootingFactor = ::Random.randF(-fPowerRnd, fPowerRnd);
+    m_fUD_ShootingFactor += (m_fUD_ShootingFactor >= 0.0f ? fPowerMin : -fPowerMin);
 }
 
 void	CWeapon::SetAmmoElapsed	(int ammo_count)

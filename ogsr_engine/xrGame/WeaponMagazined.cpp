@@ -686,6 +686,9 @@ void CWeaponMagazined::OnShot		()
 	//дым из ствола
 	ForceUpdateFireParticles	();
 	StartSmokeParticles			(get_LastFP(), vel);
+
+    // Эффект сдвига (отдача)
+    AddHUDShootingEffect();
 }
 
 
@@ -706,7 +709,16 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 				MyLittleReload();
 		    break;
 	    }
-		case eHiding:	SwitchState(eHidden);   break;	// End of Hide
+		case eHiding:
+		{
+			SwitchState(eHidden);   
+			
+			m_fLR_ShootingFactor = 0.f;
+			m_fUD_ShootingFactor = 0.f;
+			m_fBACKW_ShootingFactor = 0.f;
+			
+			break;	// End of Hide
+		}
 		case eShowing:	SwitchState(eIdle);		break;	// End of Show
 		case eIdle:		switch2_Idle();			break;  // Keep showing idle
 	}

@@ -44,6 +44,7 @@ struct hud_item_measures
 		e_shell_point = (1 << 2),
 		e_16x9_mode_now = (1 << 3)
 	};
+	void merge_measures_params();
 	Flags8 m_prop_flags;
 
 	Fvector m_item_attach[2]{}; // pos,rot
@@ -76,6 +77,7 @@ struct hud_item_measures
 	Fvector m_hands_attach[2]{}; // pos,rot
 
 	void load(const shared_str& sect_name, IKinematics* K);
+    bool bReloadShooting; //--#SM+#--
 
 	struct inertion_params
 	{
@@ -93,6 +95,17 @@ struct hud_item_measures
 		float m_tendto_speed_aim;
 	};
 	inertion_params m_inertion_params; //--#SM+#--	
+	
+    struct shooting_params
+    {
+        Fvector4 m_shot_max_offset_LRUD;
+        Fvector4 m_shot_max_offset_LRUD_aim;
+        Fvector2 m_shot_offset_BACKW;
+        float m_ret_speed;
+        float m_ret_speed_aim;
+        float m_min_LRUD_power;
+    };
+    shooting_params m_shooting_params; //--#SM+#--
 };
 
 struct attachable_hud_item

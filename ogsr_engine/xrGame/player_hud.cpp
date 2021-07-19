@@ -183,6 +183,7 @@ void attachable_hud_item::update(bool bForce)
 		ka->dcast_PKinematics()->CalculateBones_Invalidate();
 		ka->dcast_PKinematics()->CalculateBones(TRUE);
 	}
+	this->m_measures.merge_measures_params();
 }
 
 void attachable_hud_item::update_hud_additional(Fmatrix& trans)
@@ -337,6 +338,7 @@ void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
 			sect_name.c_str());
 
 	m_prop_flags.set(e_16x9_mode_now, is_16x9);
+    bReloadShooting = READ_IF_EXISTS(pSettings, r_bool, sect_name, "use_new_shooting_params", true);
 
 	//Загрузка параметров инерции --#SM+# Begin--
 	m_inertion_params.m_pitch_offset_r = READ_IF_EXISTS(pSettings, r_float, sect_name, "pitch_offset_right", PITCH_OFFSET_R);
@@ -349,6 +351,29 @@ void hud_item_measures::load(const shared_str& sect_name, IKinematics* K)
 	m_inertion_params.m_tendto_speed = READ_IF_EXISTS(pSettings, r_float, sect_name, "inertion_tendto_speed", TENDTO_SPEED);
 	m_inertion_params.m_tendto_speed_aim = READ_IF_EXISTS(pSettings, r_float, sect_name, "inertion_zoom_tendto_speed", TENDTO_SPEED_AIM);
 	//--#SM+# End--
+	
+    // Загрузка параметров смещения при стрельбе
+    m_shooting_params.m_shot_max_offset_LRUD      = READ_IF_EXISTS(pSettings, r_fvector4, sect_name, "shooting_max_LRUD", Fvector4().set(0, 0, 0, 0));
+    m_shooting_params.m_shot_max_offset_LRUD_aim  = READ_IF_EXISTS(pSettings, r_fvector4, sect_name, "shooting_max_LRUD_aim", Fvector4().set(0, 0, 0, 0));
+    m_shooting_params.m_shot_offset_BACKW         = READ_IF_EXISTS(pSettings, r_fvector2, sect_name, "shooting_backward_offset", Fvector2().set(0,0));
+    m_shooting_params.m_ret_speed                 = READ_IF_EXISTS(pSettings, r_float, sect_name, "shooting_ret_speed", 1.0f);
+    m_shooting_params.m_ret_speed_aim             = READ_IF_EXISTS(pSettings, r_float, sect_name, "shooting_ret_aim_speed", 1.0f);
+    m_shooting_params.m_min_LRUD_power            = READ_IF_EXISTS(pSettings, r_float, sect_name, "shooting_min_LRUD_power", 0.01f);
+
+}
+void hud_item_measures::merge_measures_params()
+{
+    // Смещение от стрельбы
+    if (bReloadShooting) //-> хз зачем	
+    {
+        m_shooting_params.m_shot_max_offset_LRUD     = m_shooting_params.m_shot_max_offset_LRUD;
+        m_shooting_params.m_shot_max_offset_LRUD_aim = m_shooting_params.m_shot_max_offset_LRUD_aim;
+        m_shooting_params.m_shot_offset_BACKW        = m_shooting_params.m_shot_offset_BACKW;
+        m_shooting_params.m_ret_speed                = m_shooting_params.m_ret_speed;
+        m_shooting_params.m_ret_speed_aim            = m_shooting_params.m_ret_speed_aim;
+        m_shooting_params.m_min_LRUD_power           = m_shooting_params.m_min_LRUD_power;
+    }
+	//return;
 }
 
 attachable_hud_item::~attachable_hud_item()
