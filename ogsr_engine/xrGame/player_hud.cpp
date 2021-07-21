@@ -114,7 +114,7 @@ void player_hud_motion_container::load(attachable_hud_item* parent, IKinematicsA
 					}
 				}
 			}
-			ASSERT_FMT(pm->m_animations.size(), "[%s] motion [%s](%s) not found in section [%s]", __FUNCTION__, pm->m_base_name.c_str(), name.c_str(), sect.c_str());
+			//ASSERT_FMT(pm->m_animations.size(), "[%s] motion [%s](%s) not found in section [%s]", __FUNCTION__, pm->m_base_name.c_str(), name.c_str(), sect.c_str());
 		}
 	}
 }
@@ -605,7 +605,10 @@ u32 player_hud::motion_length(const shared_str& anim_name, const shared_str& hud
 	if (!pm)
 		return 100; // ms TEMPORARY
 	ASSERT_FMT(pm, "hudItem model [%s] has no motion with alias [%s]", hud_name.c_str(), anim_name.c_str());
-	return motion_length(pm->m_animations[0], md, pm->m_animations[0].speed_k, smart_cast<IKinematicsAnimated*>(pi->m_model), pi);
+	if (pm->m_animations.size())
+		return motion_length(pm->m_animations[0], md, pm->m_animations[0].speed_k, smart_cast<IKinematicsAnimated*>(pi->m_model), pi);
+	else
+		return false;
 }
 
 u32 player_hud::motion_length(const motion_descr& M, const CMotionDef*& md, float speed, IKinematicsAnimated* itemModel, attachable_hud_item* pi)

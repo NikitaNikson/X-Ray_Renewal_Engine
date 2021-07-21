@@ -795,7 +795,12 @@ void CWeaponMagazinedWGrenade::PlayAnimShoot()
 	else
 	{
 		if (IsGrenadeLauncherAttached())
-			PlayHUDMotion("anm_shots_w_gl", FALSE, this, GetState());
+		{
+			if(!IsZoomed() || !AnimationExist("anm_shots_aim"))
+				PlayHUDMotion("anm_shots_w_gl", false, this, GetState());
+			else
+				PlayHUDMotion("anm_shots_aim_w_gl", false, this, GetState());
+		}
 		else
 			inherited::PlayAnimShoot();
 	}
