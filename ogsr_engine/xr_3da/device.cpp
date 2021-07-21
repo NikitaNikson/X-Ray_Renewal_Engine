@@ -329,6 +329,17 @@ void CRenderDevice::Run			()
 //	DUMP_PHASE;
 	g_bLoaded		= FALSE;
 	Log				("Starting engine...");
+	
+	bool any_addons_installed = Core.Features.test(xrCore::Feature::any_addons_installed) ? true : false;
+	if (any_addons_installed)
+	{
+		Log("addons present");
+	}
+	else
+	{
+		Log("addons absent");
+	}
+	
 	set_current_thread_name("X-RAY Primary thread");
 
 	// Startup timers and calculate timer delta

@@ -319,14 +319,14 @@ void CIKLimbsController::PlayLegs(CBlend* b)
 {
     m_legs_blend = b;
 
-    IKinematicsAnimated* skeleton_animated = m_object->Visual()->dcast_PKinematicsAnimated();
+    /*IKinematicsAnimated* skeleton_animated = m_object->Visual()->dcast_PKinematicsAnimated();
     VERIFY(skeleton_animated);
     auto anim_name = skeleton_animated->LL_MotionDefName_dbg(b->motionID).first;
     auto anim_set_name = skeleton_animated->LL_MotionDefName_dbg(b->motionID).second;
 
     CMotionDef& MD = *skeleton_animated->LL_GetMotionDef(b->motionID);
     if (MD.marks.empty() && (MD.flags & esmUseFootSteps))
-        Msg("!![%s] No foot stseps for animation: animation name: [%s], animation set: [%s]", __FUNCTION__, anim_name, anim_set_name);
+        Msg("!![%s] No foot stseps for animation: animation name: [%s], animation set: [%s]", __FUNCTION__, anim_name, anim_set_name);*/
 }
 void CIKLimbsController::Update()
 {
