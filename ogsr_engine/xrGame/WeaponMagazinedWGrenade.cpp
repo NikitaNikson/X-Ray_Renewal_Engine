@@ -790,16 +790,19 @@ void CWeaponMagazinedWGrenade::PlayAnimShoot()
 	if (this->m_bGrenadeMode)
 	{
 		//анимация стрельбы из подствольника
-		PlayHUDMotion("anm_shots_g", FALSE, this, GetState());
+		if(!IsZoomed() || !AnimationExist("anm_shots_aim_g"))
+			PlayHUDMotion("anm_shots_g", "anm_shoot_g", FALSE, this, GetState());
+		else
+			PlayHUDMotion("anm_shots_aim_g", "anm_shots_g_aim", FALSE, this, GetState());
 	}
 	else
 	{
 		if (IsGrenadeLauncherAttached())
 		{
 			if(!IsZoomed() || !AnimationExist("anm_shots_aim"))
-				PlayHUDMotion("anm_shots_w_gl", false, this, GetState());
+				PlayHUDMotion("anm_shots_w_gl", "anm_shoot_w_gl", false, this, GetState());
 			else
-				PlayHUDMotion("anm_shots_aim_w_gl", false, this, GetState());
+				PlayHUDMotion("anm_shots_aim_w_gl", "anm_shots_w_gl_aim", false, this, GetState());
 		}
 		else
 			inherited::PlayAnimShoot();

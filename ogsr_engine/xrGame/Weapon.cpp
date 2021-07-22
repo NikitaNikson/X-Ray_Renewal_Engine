@@ -406,9 +406,24 @@ void CWeapon::Load		(LPCSTR section)
 	m_sWpn_silencer_bone = READ_IF_EXISTS(pSettings, r_string, section, "silencer_bone", wpn_silencer_def_bone);
 	m_sWpn_launcher_bone = READ_IF_EXISTS(pSettings, r_string, section, "launcher_bone", wpn_launcher_def_bone_shoc);
 
-	if (pSettings->line_exist(section, "hidden_bones"))
+	if (pSettings->line_exist(section, "hidden_bones") && (!IsGrenadeLauncherAttached() || !pSettings->line_exist(section, "hidden_bones_w_gl")))
 	{
 		const char* S = pSettings->r_string(section, "hidden_bones");
+		if (S && strlen(S))
+		{
+			const int count = _GetItemCount(S);
+			string128 _hidden_bone{};
+			for (int it = 0; it < count; ++it)
+			{
+				_GetItem(S, it, _hidden_bone);
+				hidden_bones.push_back(_hidden_bone);
+			}
+		}
+	}
+	
+	if (pSettings->line_exist(section, "hidden_bones_w_gl") && IsGrenadeLauncherAttached())
+	{
+		const char* S = pSettings->r_string(section, "hidden_bones_w_gl");
 		if (S && strlen(S))
 		{
 			const int count = _GetItemCount(S);
