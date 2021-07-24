@@ -1,17 +1,17 @@
 /*
  * Copyright (c) 2005, Creative Labs Inc.
  * All rights reserved.
- *
+ * 
  * Redistribution and use in source and binary forms, with or without modification, are permitted provided
  * that the following conditions are met:
- *
+ * 
  *     * Redistributions of source code must retain the above copyright notice, this list of conditions and
  * 	     the following disclaimer.
  *     * Redistributions in binary form must reproduce the above copyright notice, this list of conditions
  * 	     and the following disclaimer in the documentation and/or other materials provided with the distribution.
  *     * Neither the name of Creative Labs Inc. nor the names of its contributors may be used to endorse or
  * 	     promote products derived from this software without specific prior written permission.
- *
+ * 
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A
  * PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
@@ -30,13 +30,23 @@
 #include <objbase.h>
 #pragma warning(pop)
 
+#ifdef _EDITOR
+	log_fn_ptr_type*	pLog = NULL;
+#endif
+
+void __cdecl al_log(char* msg)
+{
+	Log(msg);
+}
+
 ALDeviceList::ALDeviceList()
 {
+	//pLog = al_log;
 	snd_device_id = u32(-1);
 	Enumerate();
 }
 
-/*
+/* 
  * Exit call
  */
 ALDeviceList::~ALDeviceList()
@@ -52,9 +62,9 @@ ALDeviceList::~ALDeviceList()
 
 void ALDeviceList::Enumerate()
 {
-	char				*devices;
-	int					major, minor, index;
-	LPCSTR				actualDeviceName;
+	char* devices;
+	int major, minor, index;
+	LPCSTR actualDeviceName;
 
 	Msg("SOUND: OpenAL: enumerate devices...");
 	// have a set of vectors storing the device list, selection status, spec version #, and XRAM support status
@@ -72,14 +82,29 @@ void ALDeviceList::Enumerate()
 		xr_strcpy(m_defaultDeviceName, (char *)alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER));
 		Msg("SOUND: OpenAL: system  default SndDevice name is %s", m_defaultDeviceName);
 
+		// ManowaR
+		// "Generic Hardware" device on software AC'97 codecs introduce 
+		// high CPU usage ( up to 30% ) as a consequence - freezes, FPS drop
+		// So if default device is "Generic Hardware" which maps to DirectSound3D interface
+		// We re-assign it to "Generic Software" to get use of old good DirectSound interface
+		// This makes 3D-sound processing unusable on cheap AC'97 codecs
+		// Also we assume that if "Generic Hardware" exists, than "Generic Software" is also exists
+		// Maybe wrong
+
+		if (0 == stricmp(m_defaultDeviceName, AL_GENERIC_HARDWARE))
+		{
+			xr_strcpy(m_defaultDeviceName, AL_GENERIC_SOFTWARE);
+			Msg("SOUND: OpenAL: default SndDevice name set to %s", m_defaultDeviceName);
+		}
+
 		index = 0;
 		// go through device list (each device terminated with a single NULL, list terminated with double NULL)
-		while (*devices != '\0')
+		while (*devices != NULL)
 		{
-			ALCdevice *device = alcOpenDevice(devices);
+			ALCdevice* device = alcOpenDevice(devices);
 			if (device)
 			{
-				ALCcontext *context = alcCreateContext(device, NULL);
+				ALCcontext* context = alcCreateContext(device, NULL);
 				if (context)
 				{
 					alcMakeContextCurrent(context);
@@ -90,8 +115,7 @@ void ALDeviceList::Enumerate()
 					{
 						alcGetIntegerv(device, ALC_MAJOR_VERSION, sizeof(int), &major);
 						alcGetIntegerv(device, ALC_MINOR_VERSION, sizeof(int), &minor);
-						m_devices.emplace_back(actualDeviceName, minor, major);
-						
+						m_devices.push_back(ALDeviceDesc(actualDeviceName, minor, major));
 						if (!stricmp(m_devices.back().name, AL_SOFT))
 						{
 							m_devices.back().props.efx = alcIsExtensionPresent(alcGetContextsDevice(alcGetCurrentContext()), "ALC_EXT_EFX");
@@ -111,7 +135,7 @@ void ALDeviceList::Enumerate()
 							m_devices.back().props.xram = alIsExtensionPresent("EAX-RAM");
 						}
 
-
+						m_devices.back().props.eax_unwanted = 0;
 						++index;
 					}
 					alcDestroyContext(context);
@@ -156,17 +180,18 @@ void ALDeviceList::Enumerate()
 	{
 		GetDeviceVersion(j, &majorVersion, &minorVersion);
 		Msg("%d. %s, Spec Version %d.%d %s eax[%d] efx[%s] xram[%s]",
-			j + 1,
-			GetDeviceName(j),
-			majorVersion,
-			minorVersion,
-			(stricmp(GetDeviceName(j), m_defaultDeviceName) == 0) ? "(default)" : "",
-			GetDeviceDesc(j).props.eax,
-			GetDeviceDesc(j).props.efx ? "yes" : "no",
-			GetDeviceDesc(j).props.xram ? "yes" : "no"
+		    j + 1,
+		    GetDeviceName(j),
+		    majorVersion,
+		    minorVersion,
+		    (stricmp(GetDeviceName(j), m_defaultDeviceName) == 0) ? "(default)" : "",
+		    GetDeviceDesc(j).props.eax,
+		    GetDeviceDesc(j).props.efx ? "yes" : "no",
+		    GetDeviceDesc(j).props.xram ? "yes" : "no"
 		);
 	}
-	CoInitializeEx(NULL, COINIT_MULTITHREADED);
+	if (!strstr(GetCommandLine(), "-editor"))
+		CoInitializeEx(NULL, COINIT_MULTITHREADED);
 }
 
 LPCSTR ALDeviceList::GetDeviceName(u32 index)
@@ -201,23 +226,21 @@ void ALDeviceList::SelectBestDevice()
 		}
 		if (new_device_id == u32(-1))
 		{
-			R_ASSERT(GetNumDevices() != 0);
+			R_ASSERT(GetNumDevices()!=0);
 			new_device_id = 0; //first
 		};
 		snd_device_id = new_device_id;
 	}
 	if (GetNumDevices() == 0)
 		Msg("SOUND: Can't select device. List empty");
-	else {
+	else
 		Msg("SOUND: Selected device is %s", GetDeviceName(snd_device_id));
-		IS_OpenAL_Soft = !stricmp(GetDeviceName(snd_device_id), AL_SOFT);
-	}
 }
 
 /*
  * Returns the major and minor version numbers for a device at a specified index in the complete list
  */
-void ALDeviceList::GetDeviceVersion(u32 index, int *major, int *minor)
+void ALDeviceList::GetDeviceVersion(u32 index, int* major, int* minor)
 {
 	*major = m_devices[index].major_ver;
 	*minor = m_devices[index].minor_ver;
