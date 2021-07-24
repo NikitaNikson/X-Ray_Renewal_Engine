@@ -2,9 +2,9 @@
 #include <al.h>
 #include <alc.h>
 
-#define AL_GENERIC_HARDWARE "Generic Hardware"
-#define AL_GENERIC_SOFTWARE "Generic Software"
-#define AL_SOFT "OpenAL Soft"
+static constexpr const char* AL_GENERIC_HARDWARE = "Generic Hardware";
+static constexpr const char* AL_GENERIC_SOFTWARE = "Generic Software";
+static constexpr const char* AL_SOFT = "OpenAL Soft";
 
 struct ALDeviceDesc
 {

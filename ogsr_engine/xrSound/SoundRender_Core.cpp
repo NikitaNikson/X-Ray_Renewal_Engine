@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#pragma hdrstop
 
 #include "../xr_3da/xrLevel.h"
 #include "soundrender_core.h"
@@ -234,7 +234,7 @@ void CSoundRender_Core::set_geometry_som(IReader* I)
 	geom_SOM->build(CL.getV(), int(CL.getVS()), CL.getT(), int(CL.getTS()));
 #endif
 
-	geom_SOM->close();
+	geom->close();
 }
 
 void CSoundRender_Core::set_geometry_env(IReader* I)
@@ -278,12 +278,8 @@ void CSoundRender_Core::set_geometry_env(IReader* I)
 		CDB::TRI* T = tris + it;
 		u16 id_front = (u16)((T->dummy & 0x0000ffff) >> 0); //	front face
 		u16 id_back = (u16)((T->dummy & 0xffff0000) >> 16); //	back face
-		//R_ASSERT(id_front<(u16)ids.size());
-		//R_ASSERT(id_back<(u16)ids.size());
-		
-		if(id_front>(u16)ids.size() || id_back>(u16)ids.size())
-			return;
-		
+		R_ASSERT(id_front<(u16)ids.size());
+		R_ASSERT(id_back<(u16)ids.size());
 		T->dummy = u32(ids[id_back] << 16) | u32(ids[id_front]);
 	}
 #ifdef _EDITOR

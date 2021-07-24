@@ -1,3 +1,5 @@
+#ifndef SoundRender_CacheH
+#define SoundRender_CacheH
 #pragma once
 
 // --- just thoughts ---
@@ -75,3 +77,4 @@ public:
 	CSoundRender_Cache();
 	~CSoundRender_Cache();
 };
+#endif

@@ -1,3 +1,5 @@
+#ifndef SoundRender_TargetH
+#define SoundRender_TargetH
 #pragma once
 
 #include <al.h>
@@ -42,3 +44,4 @@ public:
 	virtual void fill_parameters() =0;
 	virtual	void				alAuxInit(ALuint slot) = 0;
 };
+#endif
