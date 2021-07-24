@@ -1,11 +1,9 @@
 #include "stdafx.h"
-#pragma hdrstop
 
 #include "SoundRender_CoreA.h"
 
-XRSOUND_API xr_token* snd_devices_token = NULL;
-XRSOUND_API u32 snd_device_id = u32(-1);
-
+XRSOUND_API xr_token*		snd_devices_token = NULL;
+XRSOUND_API u32				snd_device_id = u32(-1);
 void CSound_manager_interface::_create(int stage)
 {
 	if (stage == 0)
@@ -21,6 +19,7 @@ void CSound_manager_interface::_create(int stage)
 		}
 		else
 			SoundRender->bPresent = TRUE;
+
 	}
 
 	if (!SoundRender->bPresent) return;
