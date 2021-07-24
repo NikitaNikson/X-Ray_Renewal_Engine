@@ -34,7 +34,7 @@ extern void CCC_RegisterCommands();
 extern float g_fTimeFactor;
 extern shared_str g_active_task_id;
 
-#ifdef XRGAME_STATIC
+//#ifdef XRGAME_STATIC
 
 void AttachGame()
 {
@@ -50,7 +50,7 @@ void AttachGame()
 #endif
 }
 
-#else
+/*#else
 
 BOOL APIENTRY DllMain(HANDLE hModule, u32 ul_reason_for_call, LPVOID lpReserved)
 {
@@ -77,3 +77,4 @@ BOOL APIENTRY DllMain(HANDLE hModule, u32 ul_reason_for_call, LPVOID lpReserved)
 }
 
 #endif
+*/
