@@ -1,9 +1,7 @@
-#ifndef soundrender_environmentH
-#define soundrender_environmentH
 #pragma once
 
 // refs
-class XRSOUND_EDITOR_API CSoundRender_Environment : public CSound_environment
+class CSoundRender_Environment : public CSound_environment
 {
 public:
 	u32 version;
@@ -51,4 +49,3 @@ public:
 	void Remove(int id);
 	SE_VEC& Library();
 };
-#endif

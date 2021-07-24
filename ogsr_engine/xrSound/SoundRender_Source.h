@@ -1,5 +1,3 @@
-#ifndef SoundRender_SourceH
-#define SoundRender_SourceH
 #pragma once
 
 #include "soundrender_cache.h"
@@ -27,7 +25,7 @@ public:
 	u32 m_uGameType;
 private:
 	void i_decompress_fr(OggVorbis_File* ovf, char* dest, u32 size);
-	bool LoadWave(LPCSTR name);
+	void LoadWave(LPCSTR name);
 public:
 	CSoundRender_Source();
 	~CSoundRender_Source();
@@ -43,4 +41,3 @@ public:
 	virtual u16 channels_num() const { return m_wformat.nChannels; }
 	virtual u32 bytes_total() const { return dwBytesTotal; }
 };
-#endif

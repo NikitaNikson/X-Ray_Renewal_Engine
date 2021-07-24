@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#pragma hdrstop
+
 
 #include <msacm.h>
 
@@ -61,7 +61,7 @@ void CSoundRender_Source::decompress(u32 line, OggVorbis_File* ovf)
 	i_decompress_fr(ovf, dest, left);
 }
 
-bool CSoundRender_Source::LoadWave(LPCSTR pName)
+void CSoundRender_Source::LoadWave(LPCSTR pName)
 {
 	pname = pName;
 
@@ -82,7 +82,7 @@ bool CSoundRender_Source::LoadWave(LPCSTR pName)
 		Msg("! Warning: Invalid source rate: %s", pName);
 		ov_clear(&ovf);
 		FS.r_close(wave);
-		return false;
+		return;
 	}
 
 #ifdef DEBUG
@@ -149,7 +149,7 @@ bool CSoundRender_Source::LoadWave(LPCSTR pName)
 	ov_clear(&ovf);
 	FS.r_close(wave);
 
-	return true;
+	//return true;
 }
 
 void CSoundRender_Source::load(LPCSTR name)
@@ -172,8 +172,8 @@ void CSoundRender_Source::load(LPCSTR name)
 		}
     }
 
-	if (LoadWave(fn))
-		SoundRender->cache.cat_create(CAT, dwBytesTotal);
+	LoadWave(fn);
+	SoundRender->cache.cat_create(CAT, dwBytesTotal);
 }
 
 void CSoundRender_Source::unload()

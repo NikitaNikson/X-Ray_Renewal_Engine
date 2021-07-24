@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#pragma hdrstop
+
 
 #include ".\soundrender_cache.h"
 
@@ -28,10 +28,10 @@ void CSoundRender_Cache::move2top(cache_line* line)
 	if (line == c_end) c_end = c_end->prev;
 
 	// cut 
-	cache_line* prev = line->prev;
-	cache_line* next = line->next;
-	if (prev) prev->next = next;
-	if (next) next->prev = prev;
+	//cache_line* prev = line->prev;
+	//cache_line* next = line->next;
+	//if (prev) prev->next = next;
+	//if (next) next->prev = prev;
 
 	// register at top
 	line->prev = NULL;
@@ -58,7 +58,7 @@ BOOL CSoundRender_Cache::request(cache_cat& cat, u32 id)
 		_stat_hit ++;
 		cache_line* L = c_storage + cptr;
 		move2top(L);
-		return FALSE;
+		//return FALSE;
 	}
 
 	// 2. purge oldest item + move it to top

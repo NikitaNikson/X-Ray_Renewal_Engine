@@ -1,5 +1,3 @@
-#ifndef SoundRender_TargetAH
-#define SoundRender_TargetAH
 #pragma once
 
 #include "soundrender_Target.h"
@@ -35,4 +33,3 @@ public:
 	virtual	void				alAuxInit(ALuint slot) override;
 	void source_changed();
 };
-#endif

@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#pragma hdrstop
+
 
 #include "SoundRender_Core.h"
 #include "SoundRender_Source.h"
@@ -63,7 +63,7 @@ void CSoundRender_Emitter::fill_data(u8* _dest, u32 offset, u32 size)
 		CopyMemory(_dest, ptr+line_offs, blk_size);
 
 		// advance
-		line ++;
+		line++;
 		size -= blk_size;
 		_dest += blk_size;
 		offset += blk_size;

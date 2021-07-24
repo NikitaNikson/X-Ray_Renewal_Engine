@@ -1,5 +1,3 @@
-#ifndef SoundRender_CoreH
-#define SoundRender_CoreH
 #pragma once
 
 #include <al.h>
@@ -137,4 +135,3 @@ protected: // EFX
 };
 
 extern CSoundRender_Core* SoundRender;
-#endif
