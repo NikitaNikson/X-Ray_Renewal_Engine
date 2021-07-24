@@ -13,6 +13,9 @@
 	#include "xr_object.h"
 #endif
 
+rain_timer_params* rain_timers = NULL;
+Fvector4* rain_params = NULL;
+
 //	Warning: duplicated in dxRainRender
 static const int	max_desired_items	= 2500;
 static const float	source_radius		= 12.5f;
@@ -54,6 +57,13 @@ CEffect_Rain::CEffect_Rain()
 	*/
 	p_create						();
 	//FS.r_close						(F);
+
+#ifndef _EDITOR
+    if (!rain_timers)
+        rain_timers = xr_new<rain_timer_params>();
+    if (!rain_params)
+        rain_params = xr_new<Fvector4>();
+#endif
 }
 
 CEffect_Rain::~CEffect_Rain()
@@ -64,6 +74,13 @@ CEffect_Rain::~CEffect_Rain()
 	p_destroy						();
 	//	Moved to p_Render destructor
 	//::Render->model_Delete			(DM_Drop);
+
+#ifndef _EDITOR
+    if (rain_timers)
+        xr_delete(rain_timers);
+    if (rain_params)
+        xr_delete(rain_params);
+#endif
 }
 
 // Born
@@ -186,6 +203,100 @@ void	CEffect_Rain::OnFrame	()
 		snd_Ambient.set_volume	(_max(0.1f,factor) * hemi_factor );
 	}
 }
+
+#ifndef _EDITOR
+BOOL rain_timer_params::RayPick(const Fvector& s, const Fvector& d, float& range, collide::rq_target tgt)
+{
+    BOOL bRes = TRUE;
+    collide::rq_result	RQ;
+    CObject* E = g_pGameLevel->CurrentViewEntity();
+    bRes = g_pGameLevel->ObjectSpace.RayPick(s, d, range, tgt, RQ, E);
+    if (bRes) range = RQ.range;
+    return bRes;
+}
+int rain_timer_params::Update(BOOL state, bool need_raypick)
+{
+    float	factor = g_pGamePersistent->Environment().CurrentEnv->rain_density;
+    if (factor>EPS_L)
+    {
+        // is raining	
+        if (state)
+        {
+            // effect is enabled
+            Fvector P, D;
+            P = Device.vCameraPosition;	// cam position
+            D.set(0, 1, 0);				// direction to sky
+            float max_dist = max_distance;
+            if (!need_raypick || !RayPick(P, D, max_dist, collide::rqtBoth))
+            {
+                // under the sky
+                if (!not_first_frame)
+                {
+                    // first frame
+                    not_first_frame = TRUE;
+                    rain_drop_time = rain_drop_time_basic / factor;		// speed of getting wet
+                    rain_timestamp = Device.fTimeGlobal;
+                    if (rain_timer > EPS)
+                        rain_timestamp += last_rain_duration - rain_timer - std::min(rain_drop_time, last_rain_duration);
+                    last_rain_duration = 0;
+                }
+                // ïðîâåðÿåì, íå îòðèöàòåëåí ëè äîæäåâîé òàéìåð, åñëè îòðèöàòåëåí - îáíóëÿåì
+                // òàêîå ìîæåò áûòü ïðè ïåðâîì êàäðå ñ äîæäåì, åñëè äî ýòîãî äîæäü óæå êàê-òî ðàç áûë â òåêóùåé èãðîâîé ñåññèè
+                if (rain_timer < 0)
+                    rain_timer = 0;
+                rain_timer = Device.fTimeGlobal - rain_timestamp;
+            }
+            else
+            {
+                // under the cover. but may be it just appear
+                if (rain_timer > EPS)
+                {
+                    // yes, actor was under the sky recently
+                    float delta = rain_timer - (Device.fTimeGlobal - previous_frame_time);
+                    rain_timer = (delta>0) ? delta : 0;
+                    if (not_first_frame)
+                    {
+                        // first update since rain was stopped
+                        not_first_frame = FALSE;
+                        last_rain_duration = Device.fTimeGlobal - rain_timestamp;
+                    }
+                }
+            }
+        }
+        else
+        {
+            // effect is disabled, reset all
+            not_first_frame = FALSE;
+            last_rain_duration = 0;
+            rain_timer = 0;
+            rain_timestamp = Device.fTimeGlobal;
+        }
+        previous_frame_time = Device.fTimeGlobal;
+        timer.set(rain_timer, last_rain_duration, rain_drop_time);
+        return IS_RAIN;
+    }
+    else
+    {
+        // no rain. but may be it just stop
+        if (rain_timer > EPS)
+        {
+            // yes, it has been raining recently
+            // so decrease timer
+            float delta = rain_timer - (Device.fTimeGlobal - previous_frame_time);
+            rain_timer = (delta>0) ? delta : 0;
+            if (not_first_frame)
+            {
+                // first update since rain was stopped
+                not_first_frame = FALSE;
+                last_rain_duration = Device.fTimeGlobal - rain_timestamp;
+            }
+            previous_frame_time = Device.fTimeGlobal;
+        }
+        timer.set(rain_timer, last_rain_duration, rain_drop_time);
+        return NO_RAIN;
+    }
+}
+#endif
 
 //#include "xr_input.h"
 void	CEffect_Rain::Render	()

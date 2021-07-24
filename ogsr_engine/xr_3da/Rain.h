@@ -93,4 +93,37 @@ public:
 	void InvalidateState() { state = stIdle; }
 };
 
+#ifndef _EDITOR
+enum
+{
+    NO_RAIN,
+    IS_RAIN,
+};
+
+class ENGINE_API rain_timer_params
+{
+public:
+    Fvector		timer;
+    bool		not_first_frame;
+    float		rain_timestamp;
+    float		rain_drop_time_basic;
+    float		previous_frame_time;
+    float		last_rain_duration;
+    float		rain_drop_time;
+    float		rain_timer;
+
+    rain_timer_params() :not_first_frame(FALSE), rain_timestamp(0), rain_drop_time_basic(20.0), previous_frame_time(0), last_rain_duration(0), rain_drop_time(0), rain_timer(0) { timer.set(0.0, 0.0, 0.0); };
+    IC void SetDropTime(float time)
+    {
+        rain_drop_time_basic = time;
+    }
+    int Update(BOOL state, bool need_raypick);
+    BOOL RayPick(const Fvector& s, const Fvector& d, float& range, collide::rq_target tgt);
+};
+
+ENGINE_API extern rain_timer_params* rain_timers;
+ENGINE_API extern Fvector4* rain_params;
+#endif
+
+
 #endif //RainH

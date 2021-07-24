@@ -408,6 +408,7 @@
     <ClInclude Include="r2_rendertarget_wallmarks.h" />
     <ClInclude Include="r2_types.h" />
     <ClInclude Include="SMAP_Allocator.h" />
+    <ClInclude Include="r2_puddles.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
@@ -542,6 +543,8 @@
     <ClCompile Include="blender_light_spot.cpp" />
     <ClCompile Include="blender_luminance.cpp" />
     <ClCompile Include="blender_ssao.cpp" />
+    <ClCompile Include="r2_puddles.cpp" />
+    <ClCompile Include="r2_rendertarget_phase_puddles.cpp" />
     <ClCompile Include="light_GI.cpp" />
     <ClCompile Include="..\xrRender\Light_Render_Direct.cpp" />
     <ClCompile Include="..\xrRender\Light_Render_Direct_ComputeXFS.cpp" />

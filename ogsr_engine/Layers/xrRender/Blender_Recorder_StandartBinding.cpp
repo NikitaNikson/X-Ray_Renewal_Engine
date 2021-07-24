@@ -14,6 +14,7 @@
 #include "../../xr_3da/environment.h"
 
 #include "dxRenderDeviceRender.h"
+#include "../../xr_3da/Rain.h"
 
 // matrices
 #define	BIND_DECLARE(xf)	\
@@ -317,13 +318,13 @@ static class cl_screen_params : public R_constant_setup
 	}
 } binder_screen_params;
 
-static class cl_rain_params : public R_constant_setup
+/*static class cl_rain_params : public R_constant_setup
 {
 	void setup(R_constant* C) override
 	{
 		RCache.set_c(C, g_pGamePersistent->Environment().CurrentEnv->rain_density, 0.0f, 0.0f, 0.0f);
 	}
-} binder_rain_params;
+} binder_rain_params;*/
 
 static class cl_artifacts : public R_constant_setup {
 	u32 marker;
@@ -427,9 +428,22 @@ static class cl_addon_VControl : public R_constant_setup
 	}
 } binder_addon_VControl;
 
+class cl_rain_params : public R_constant_setup {
+    u32			marker;
+    Fvector4	result;
+    virtual void setup(R_constant* C) {
+        if (marker != Device.dwFrame) {
+            result.set(*rain_params);
+        }
+        RCache.set_c(C, result);
+    }
+};
+static cl_rain_params binder_rain_params;
+
 // Standart constant-binding
 void	CBlender_Compile::SetMapping	()
 {
+    r_Constant("ogse_c_rain", &binder_rain_params);
 	// matrices
 	r_Constant				("m_W",				&binder_w);
 	r_Constant				("m_invW",			&binder_invw);

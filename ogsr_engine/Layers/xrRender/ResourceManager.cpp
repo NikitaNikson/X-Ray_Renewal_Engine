@@ -50,14 +50,14 @@ IBlender* CResourceManager::_GetBlender		(LPCSTR Name)
 	if (I==m_blenders.end())	return 0;
 #else
 //	TODO: DX10: When all shaders are ready switch to common path
-#if defined(USE_DX10) || defined(USE_DX11)
+//#if defined(USE_DX10) || defined(USE_DX11)
 	if (I==m_blenders.end())	
 	{
 		Msg("DX10: Shader '%s' not found in library.",Name); 
 		return 0;
 	}
-#endif
-	if (I==m_blenders.end())	{ Debug.fatal(DEBUG_INFO,"Shader '%s' not found in library.",Name); return 0; }
+/*#endif
+	if (I==m_blenders.end())	{ Debug.fatal(DEBUG_INFO,"Shader '%s' not found in library.",Name); return 0; }*/
 #endif
 	else					return I->second;
 }

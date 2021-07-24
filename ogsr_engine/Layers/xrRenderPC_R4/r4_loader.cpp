@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include "r2_puddles.h"
 #include "r4.h"
 #include "../xrRender/ResourceManager.h"
 #include "../xrRender/fbasicvisual.h"
@@ -14,11 +15,6 @@
 #include "../xrRenderDX10/3DFluid/dx103DFluidVolume.h"
 
 #include "../xrRender/FHierrarhyVisual.h"
-
-#pragma warning(push)
-#pragma warning(disable:4995)
-#include <malloc.h>
-#pragma warning(pop)
 
 void CRender::level_Load(IReader* fs)
 {
@@ -93,6 +89,10 @@ void CRender::level_Load(IReader* fs)
 	// 3D Fluid
 	Load3DFluid					();
 
+	// Puddles
+	Puddles = xr_new<CPuddles>();
+	Puddles->Load();
+
 	// HOM
 	HOM.Load					();
 
@@ -118,6 +118,9 @@ void CRender::level_Unload()
 	if (!b_loaded)				return;
 
 	u32 I;
+
+	// Puddles
+	Puddles->Unload();
 
 	// HOM
 	HOM.Unload				();

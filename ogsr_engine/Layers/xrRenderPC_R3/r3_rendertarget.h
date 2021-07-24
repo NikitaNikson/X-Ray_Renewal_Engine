@@ -122,6 +122,9 @@ private:
 	ref_shader					s_ssao;
 	ref_shader					s_ssao_msaa[8];
 
+	// Puddles
+	ref_shader					s_water;
+
 	// Accum
 	ref_shader					s_accum_mask	;
 	ref_shader					s_accum_direct	;
@@ -264,6 +267,7 @@ public:
 	void						phase_accumulator		();
 	void						phase_vol_accumulator	();
 	void						shadow_direct			(light* L, u32 dls_phase);
+	void						phase_puddles			();
 
 	//	Generates min/max sm
 	void						create_minmax_SM();

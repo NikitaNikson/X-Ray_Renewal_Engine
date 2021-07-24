@@ -21,6 +21,18 @@ const int	max_particles		= 1000;
 const int	particles_cache		= 400;
 const float particles_time		= .3f;
 
+template<class T>
+inline T lerp(T a1, T a2, T v)
+{
+    return (a1 + (a2 - a1) * v);
+}
+template <typename T>
+inline T saturate(T v)
+{
+    clamp(v, (T)0, (T)1);
+    return v;
+}
+
 dxRainRender::dxRainRender()
 {
 	IReader* F = FS.r_open("$game_meshes$","dm\\rain.dm"); 
@@ -51,7 +63,28 @@ void dxRainRender::Copy(IRainRender &_in)
 void dxRainRender::Render(CEffect_Rain &owner)
 {
 	float	factor				= g_pGamePersistent->Environment().CurrentEnv->rain_density;
-	if (factor<EPS_L)			return;
+#ifdef _EDITOR
+    if (factor<EPS_L)			return;
+#else
+
+    rain_timers->Update(true, false);
+    //rain params update
+    {
+#pragma todo("qweasdd to himself: replace 40, 30,20 with sonsole command")
+        rain_params->x = (rain_timers->timer.x - rain_timers->timer.y) / 40.f
+            + lerp<float>(0, saturate(rain_timers->timer.y / 40), saturate(rain_timers->timer.y));
+        rain_params->y = (rain_timers->timer.x - rain_timers->timer.y) / 30.f
+            + lerp<float>(0, saturate(rain_timers->timer.y / 30.f), saturate(rain_timers->timer.y));
+        rain_params->z = (rain_timers->timer.x - rain_timers->timer.y) / 20.f
+            + lerp<float>(0, saturate(rain_timers->timer.y / 20.f), saturate(rain_timers->timer.y));
+        rain_params->w = factor;
+    }
+    //if (rain_params->x > EPS) phase_rmap();
+    Msg("rain_params: %f, %f, %f, %f", rain_params->x, rain_params->y, rain_params->z, rain_params->w);
+
+    if (factor<EPS_L)
+        return;
+#endif
 
   	u32 desired_items			= iFloor	(0.5f*(1.f+factor)*float(max_desired_items));
 	// visual

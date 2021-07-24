@@ -184,6 +184,8 @@ private:
 	// Luminance
 	ref_shader			s_luminance;
 	float						f_luminance_adapt;
+	
+	ref_shader				s_water;
 
 	// Combine
 	ref_geom					g_combine;
@@ -274,6 +276,7 @@ public:
 	void						phase_smap_spot_tsh		(light* L);
 	void						phase_accumulator		();
 	void						phase_vol_accumulator	();
+	void						phase_puddles			();
 	void						shadow_direct			(light* L, u32 dls_phase);
 
 	//	Generates min/max sm

@@ -729,6 +729,9 @@
     <ClInclude Include="..\xrRender\Debug\dxPixEventWrapper.h">
       <Filter>Debug</Filter>
     </ClInclude>
+    <ClInclude Include="r2_puddles.h">
+      <Filter>Core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -1339,6 +1342,12 @@
     </ClCompile>
     <ClCompile Include="..\xrRender\RenderTargetPhaseSSLR.cpp">
       <Filter>Core_Target</Filter>
+    </ClCompile>
+    <ClCompile Include="r2_rendertarget_phase_puddles.cpp">
+      <Filter>Core_Target</Filter>
+    </ClCompile>
+    <ClCompile Include="r3_puddles.cpp">
+      <Filter>Core</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

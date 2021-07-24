@@ -88,6 +88,9 @@ private:
 	// OCCq
 	ref_shader					s_occq;
 
+	// Water
+	ref_shader					s_water;
+
 	// Accum
 	ref_shader					s_accum_mask	;
 	ref_shader					s_accum_direct	;
@@ -216,6 +219,7 @@ public:
 	void						phase_smap_spot_tsh		(light* L);
 	void						phase_accumulator		();
 	void						phase_vol_accumulator	();
+	void						phase_puddles        ();
 	void						shadow_direct			(light* L, u32 dls_phase);
 
 	bool						need_to_render_sunshafts();

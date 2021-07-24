@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "r3.h"
+#include "r2_puddles.h"
 #include "../xrRender/ResourceManager.h"
 #include "../xrRender/fbasicvisual.h"
 #include "../../xr_3da/fmesh.h"
@@ -93,6 +94,10 @@ void CRender::level_Load(IReader* fs)
 	// 3D Fluid
 	Load3DFluid					();
 
+	// Puddles
+	Puddles = xr_new<CPuddles>();
+	Puddles->Load();
+
 	// HOM
 	HOM.Load					();
 
@@ -118,6 +123,9 @@ void CRender::level_Unload()
 	if (!b_loaded)				return;
 
 	u32 I;
+
+	// Unload
+	Puddles->Unload();
 
 	// HOM
 	HOM.Unload				();

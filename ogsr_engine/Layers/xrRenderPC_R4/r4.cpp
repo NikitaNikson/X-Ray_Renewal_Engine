@@ -1210,6 +1210,10 @@ HRESULT	CRender::shader_compile			(
 	}
 	sh_name[len]='0'+char(4==m_skinning); ++len;
 
+	defines[def_it].Name = "USE_PUDDLES";
+	defines[def_it].Definition = "1";
+	def_it++;
+
 	//	Igor: need restart options
 	if (RImplementation.o.advancedpp && ps_r2_ls_flags.test(R2FLAG_SOFT_WATER))
 	{

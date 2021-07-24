@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "../../xr_3da/igame_persistent.h"
 #include "../../xr_3da/environment.h"
-
+#include "r2_puddles.h"
 #include "../xrRender/dxEnvironmentRender.h"
 
 #define STENCIL_CULL 0
@@ -366,6 +366,8 @@ void	CRenderTarget::phase_combine	()
    if (ps_r2_ls_flags_ext.test(R2FLAGEXT_RAIN_DROPS))
 	   PhaseRainDrops();
 
+	if (Puddles->m_bLoaded)
+		phase_puddles();
 
 	// Combine everything + perform AA
    if( RImplementation.o.dx10_msaa )

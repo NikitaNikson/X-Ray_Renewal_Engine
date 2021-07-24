@@ -368,6 +368,7 @@
     <ClInclude Include="blender_luminance.h" />
     <ClInclude Include="blender_ssao.h" />
     <ClInclude Include="cl_intersect.h" />
+    <ClInclude Include="r2_puddles.h" />
     <ClInclude Include="DetailFormat.h" />
     <ClInclude Include="dx10MinMaxSMBlender.h" />
     <ClInclude Include="light.h" />
@@ -578,6 +579,8 @@
     <ClCompile Include="r3_R_rain.cpp" />
     <ClCompile Include="r3_R_render.cpp" />
     <ClCompile Include="r3_R_sun_support.cpp" />
+    <ClCompile Include="r2_rendertarget_phase_puddles.cpp" />
+    <ClCompile Include="r3_puddles.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

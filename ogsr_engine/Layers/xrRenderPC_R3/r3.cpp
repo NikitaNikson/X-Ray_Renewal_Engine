@@ -1221,6 +1221,10 @@ HRESULT	CRender::shader_compile			(
 	}
 	sh_name[len]='0'+char(o.dx10_minmax_sm!=0); ++len;
 
+	defines[def_it].Name = "USE_PUDDLES";
+	defines[def_it].Definition = "1";
+	def_it++;
+
 #ifdef USE_COP_WEATHER_CONFIGS
 	defines[def_it].Name = "USE_COP_WEATHER_CONFIGS";
 	defines[def_it].Definition = "1";

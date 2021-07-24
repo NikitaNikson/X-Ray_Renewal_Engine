@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "../../xr_3da/igame_persistent.h"
 #include "../../xr_3da/environment.h"
-
+#include "r2_puddles.h"
 #include "../xrRender/dxEnvironmentRender.h"
 
 #define STENCIL_CULL 0
@@ -73,24 +73,23 @@ void	CRenderTarget::phase_combine	()
 	if (ps_r2_ls_flags.test(R2FLAG_EXP_SPLIT_SCENE))	split_the_scene_to_minimize_wait=TRUE;
 
 	// draw skybox
-	if (1)
-	{
-		RCache.set_ColorWriteEnable					();
-		CHK_DX(HW.pDevice->SetRenderState			( D3DRS_ZENABLE,	FALSE				));
-		g_pGamePersistent->Environment().RenderSky	();
-		//	Igor: Render clouds before compine without Z-test
-		//	to avoid siluets. HOwever, it's a bit slower process.
-		g_pGamePersistent->Environment().RenderClouds	();
-		CHK_DX(HW.pDevice->SetRenderState			( D3DRS_ZENABLE,	TRUE				));
+	RCache.set_ColorWriteEnable					();
+	CHK_DX(HW.pDevice->SetRenderState			( D3DRS_ZENABLE,	FALSE				));
+	g_pGamePersistent->Environment().RenderSky	();
+
+	//	Igor: Render clouds before compine without Z-test
+	//	to avoid siluets. HOwever, it's a bit slower process.
+	g_pGamePersistent->Environment().RenderClouds	();
+	CHK_DX(HW.pDevice->SetRenderState			( D3DRS_ZENABLE,	TRUE				));
+
+	RCache.set_Stencil					(TRUE,D3DCMP_LESSEQUAL,0x01,0xff,0x00);	// stencil should be >= 1
+	if (RImplementation.o.nvstencil)	{
+		u_stencil_optimize				(FALSE);
+		RCache.set_ColorWriteEnable		();
 	}
 
 	// 
 	//if (RImplementation.o.bug)	{
-		RCache.set_Stencil					(TRUE,D3DCMP_LESSEQUAL,0x01,0xff,0x00);	// stencil should be >= 1
-		if (RImplementation.o.nvstencil)	{
-			u_stencil_optimize				(FALSE);
-			RCache.set_ColorWriteEnable		();
-		}
 	//}
 
 	// calc m-blur matrices
@@ -240,7 +239,15 @@ void	CRenderTarget::phase_combine	()
 	// PP enabled ?
 	//	Render to RT texture to be able to copy RT even in windowed mode.
 	BOOL	PP_Complex		= u_need_PP	() | (BOOL)RImplementation.m_bMakeAsyncSS;
-	if (_menu_pp)			PP_Complex	= FALSE;
+	if (_menu_pp)
+	{
+		PP_Complex	= FALSE;
+	}
+	//else
+	//{
+	if(Puddles->m_bLoaded)
+		phase_puddles();
+	//}
 
 
 	// Postprocess anti-aliasing
@@ -250,7 +257,6 @@ void	CRenderTarget::phase_combine	()
 	// Rain droplets on screen
 	if (ps_r2_ls_flags_ext.test(R2FLAGEXT_RAIN_DROPS))
 		PhaseRainDrops();
-
 
 	// Combine everything + perform AA
 	if		(PP_Complex)	u_setrt		( rt_Color,0,0,HW.pBaseZB );			// LDR RT
