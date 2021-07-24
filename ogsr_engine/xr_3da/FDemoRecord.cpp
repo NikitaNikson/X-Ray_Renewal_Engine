@@ -94,7 +94,7 @@ static void GetLM_BBox(Fbox& bb, int Step)
 static void update_whith_timescale(Fvector& v, const Fvector& v_delta)
 {
 	VERIFY(!fis_zero(Device.time_factor()));
-	float scale = 1.f / Device.time_factor();
+	float scale = 1.f;// / Device.time_factor();
 	v.mad(v, v_delta, scale);
 }
 

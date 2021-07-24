@@ -618,5 +618,5 @@ void CRenderDevice::time_factor(const float& time_factor)
 {
 	Timer.time_factor(time_factor);
 	TimerGlobal.time_factor(time_factor);
-	psSoundTimeFactor = time_factor; //--#SM+#--
+	//psSoundTimeFactor = time_factor; //--#SM+#--
 }
