@@ -66,8 +66,7 @@ public:
 	virtual void	PlayAnimHide	();
 	virtual void	PlayAnimReload	();
 	virtual void	PlayAnimIdle	();
-	virtual void	PlayAnimFireMode();
-	virtual void	switch2_ChangeFireMode		();
+	//virtual void	switch2_ChangeFireMode		();
 	virtual void	PlayAnimShoot	();
 	virtual void	PlayAnimModeSwitch();
 	
