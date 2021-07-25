@@ -356,13 +356,47 @@ void CLocatorAPI::ProcessArchive(LPCSTR _path, LPCSTR base_path)
 		g_temporary_stuff		= g_temporary_stuff_subst;
 }
 
+IC bool pred_str_ff(const _finddata_t& x, const _finddata_t& y) { return xr_strcmp(x.name, y.name) < 0; }
+bool ignore_name(const char* _name)
+{
+    if (!strcmp(_name, "Thumbs.db"))
+        return true; // ignore windows hidden Thumbs.db
+    if (!strcmp(_name, ".svn"))
+        return true; // ignore ".svn" folders
+    if (!strcmp(_name, ".vs"))
+        return true; // ignore ".vs" folders
+    const size_t len = strlen(_name);
+#define ENDS_WITH(n) (len > sizeof(n) && !strcmp(_name + len - (sizeof(n) - 1), n))
+    if (ENDS_WITH("Thumbs.db"))
+        return true;
+    if (ENDS_WITH(".VC.db"))
+        return true;
+    if (ENDS_WITH(".VC.opendb"))
+        return true;
+    if (ENDS_WITH(".sln"))
+        return true;
+    if (ENDS_WITH(".pdb"))
+        return true;
+    if (ENDS_WITH(".ipdb"))
+        return true;
+    if (ENDS_WITH(".iobj"))
+        return true;
+#undef ENDS_WITH
+    return false;
+}
+
 void CLocatorAPI::ProcessOne	(const char* path, const _finddata_t& F)
 {
 	string_path	N;
 	strcpy_s(N, path);
 	strcat_s		(N,F.name);
 	xr_strlwr	(N);
-	
+
+    bool ignore = ignore_name(N);
+
+    if (ignore)
+        return;
+
 	if (F.attrib&_A_HIDDEN)			return;
 
 	if (F.attrib&_A_SUBDIR) {
@@ -381,22 +415,6 @@ void CLocatorAPI::ProcessOne	(const char* path, const _finddata_t& F)
 			Register(N, 0xffffffff, 0, 0, F.size, F.size, (u32)F.time_write);
 		}
 	}
-}
-
-IC bool pred_str_ff(const _finddata_t& x, const _finddata_t& y)
-{	
-	return xr_strcmp(x.name,y.name)<0;	
-}
-
-
-bool ignore_name(const char* _name)
-{
-	// ignore windows hidden Thumbs.db
-	if (!strcmp(_name, "Thumbs.db"))
-		return true;
-	
-	// ignore processing ".svn" folders
-	return ( _name[0]=='.' && _name[1]=='s' && _name[2]=='v' && _name[3]=='n' && _name[4]==0);
 }
 
 // we need to check for file existance
