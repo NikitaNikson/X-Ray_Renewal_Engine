@@ -52,6 +52,8 @@ protected:
 	virtual void	OnMagazineEmpty	();
 
 	virtual void	switch2_Idle	();
+	virtual void	switch2_ChangeFireMode		();
+	virtual void	PlayAnimFireMode();
 	virtual void	switch2_Fire	();
 	virtual void	switch2_Fire2	(){}
 	virtual void	switch2_Empty	();

@@ -129,6 +129,8 @@ public:
 		eMagEmpty,
 		eSwitch,
 		eUnJam,
+		eWPN_FIREMODE_PREV,
+		eWPN_FIREMODE_NEXT,
 	};
 	enum EWeaponSubStates{
 		eSubstateReloadBegin		=0,

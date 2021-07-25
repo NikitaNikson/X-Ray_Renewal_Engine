@@ -261,16 +261,48 @@ bool CWeaponMagazinedWGrenade::Action(s32 cmd, u32 flags)
 	
 	switch(cmd) 
 	{
-	// case kWPN_ZOOM:  ??? 
-	case kWPN_FUNC: 
-	{
-		if (!IsZoomed())
+		// case kWPN_ZOOM:  ??? 
+		case kWPN_FUNC: 
 		{
-			if (flags&CMD_START)
-				SwitchState(eSwitch);
-			return true;
+			if (!IsZoomed())
+			{
+				if (flags&CMD_START)
+					SwitchState(eSwitch);
+				return true;
+			}
 		}
-	}
+		case kWPN_FIREMODE_PREV:
+		{
+			if(flags&CMD_START) 
+			{
+				if(AnimationExist("anm_changefiremode"))
+				{
+					SwitchState(eWPN_FIREMODE_PREV);
+					return true;
+				}
+				else
+				{
+					OnPrevFireMode();
+					return true;
+				}
+			};
+		}break;
+		case kWPN_FIREMODE_NEXT:
+		{
+			if(flags&CMD_START) 
+			{
+				if(AnimationExist("anm_changefiremode"))
+				{
+					SwitchState(eWPN_FIREMODE_NEXT);
+					return true;
+				}
+				else
+				{
+					OnNextFireMode();
+					return true;
+				}
+			};
+		}break;
 	}
 	return false;
 }
@@ -471,6 +503,16 @@ void CWeaponMagazinedWGrenade::OnStateSwitch(u32 S, u32 oldState)
 
 	switch (S)
 	{
+	case eWPN_FIREMODE_NEXT:
+	{
+		PlaySound( sndFireModes, get_LastFP() );
+		switch2_ChangeFireMode();
+	}
+	case eWPN_FIREMODE_PREV:
+	{
+		PlaySound( sndFireModes, get_LastFP() );
+		switch2_ChangeFireMode();
+	}
 	case eSwitch:
 		{
 		if (!IsPending())
@@ -681,6 +723,23 @@ void CWeaponMagazinedWGrenade::PlayAnimReload()
 	}
 	else
 		inherited::PlayAnimReload();
+}
+
+void CWeaponMagazinedWGrenade::switch2_ChangeFireMode()
+{
+	PlayAnimFireMode();
+	SetPending(TRUE);
+}
+
+void CWeaponMagazinedWGrenade::PlayAnimFireMode()
+{
+	if (GetState() != eWPN_FIREMODE_NEXT && GetState() != eWPN_FIREMODE_PREV)
+		return;
+
+	if (!IsGrenadeLauncherAttached())
+		PlayHUDMotion("anm_changefiremode", true, nullptr, GetState());
+	else
+		PlayHUDMotion("anm_changefiremode_w_gl", true, nullptr, GetState());
 }
 
 void CWeaponMagazinedWGrenade::PlayAnimIdle()

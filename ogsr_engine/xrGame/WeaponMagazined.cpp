@@ -455,6 +455,24 @@ void CWeaponMagazined::OnStateSwitch(u32 S, u32 oldState)
 	inherited::OnStateSwitch(S, oldState);
 	switch (S)
 	{
+	case eWPN_FIREMODE_NEXT:
+	{
+		PlaySound( sndFireModes, get_LastFP() );
+		/*if(IsGrenadeLauncherAttached())
+			PlayHUDMotion("anm_changefiremode_w_gl", false, this, GetState());
+		else
+			PlayHUDMotion("anm_changefiremode", false, this, GetState());*/
+		switch2_ChangeFireMode();
+	}
+	case eWPN_FIREMODE_PREV:
+	{
+		PlaySound( sndFireModes, get_LastFP() );
+		/*if(IsGrenadeLauncherAttached())
+			PlayHUDMotion("anm_changefiremode_w_gl", false, this, GetState());
+		else
+			PlayHUDMotion("anm_changefiremode", false, this, GetState());*/
+		switch2_ChangeFireMode();
+	}
 	case eIdle:
 		switch2_Idle	();
 		break;
@@ -722,6 +740,18 @@ void CWeaponMagazined::OnAnimationEnd(u32 state)
 		}
 		case eShowing:	SwitchState(eIdle);		break;	// End of Show
 		case eIdle:		switch2_Idle();			break;  // Keep showing idle
+		case eWPN_FIREMODE_PREV:
+		{
+			OnPrevFireMode();
+			SwitchState(eIdle);
+			break;
+		}
+		case eWPN_FIREMODE_NEXT:
+		{
+			OnNextFireMode();
+			SwitchState(eIdle);
+			break;
+		}
 	}
 }
 
@@ -757,6 +787,21 @@ void CWeaponMagazined::switch2_Idle()
 {
 	SetPending(FALSE);
 	PlayAnimIdle();
+}
+
+void CWeaponMagazined::switch2_ChangeFireMode()
+{
+	PlayAnimFireMode();
+	SetPending(TRUE);
+}
+
+void CWeaponMagazined::PlayAnimFireMode()
+{
+	if (GetState() != eWPN_FIREMODE_NEXT && GetState() != eWPN_FIREMODE_PREV)
+		return;
+	
+	if(!IsGrenadeLauncherAttached())
+		PlayHUDMotion("anm_changefiremode", true, nullptr, GetState());
 }
 
 #ifdef DEBUG
@@ -900,16 +945,32 @@ bool CWeaponMagazined::Action(s32 cmd, u32 flags)
 		{
 			if(flags&CMD_START) 
 			{
-				OnPrevFireMode();
-				return true;
+				if(AnimationExist("anm_changefiremode"))
+				{
+					SwitchState(eWPN_FIREMODE_PREV);
+					return true;
+				}
+				else
+				{
+					OnPrevFireMode();
+					return true;
+				}
 			};
 		}break;
 	case kWPN_FIREMODE_NEXT:
 		{
 			if(flags&CMD_START) 
 			{
-				OnNextFireMode();
-				return true;
+				if(AnimationExist("anm_changefiremode"))
+				{
+					SwitchState(eWPN_FIREMODE_NEXT);
+					return true;
+				}
+				else
+				{
+					OnNextFireMode();
+					return true;
+				}
 			};
 		}break;
 	}
@@ -1387,7 +1448,7 @@ void	CWeaponMagazined::OnNextFireMode		()
 	if (!m_bHasDifferentFireModes) return;
 	m_iCurFireMode = (m_iCurFireMode+1+m_aFireModes.size()) % m_aFireModes.size();
 	SetQueueSize(GetCurrentFireMode());
-	PlaySound( sndFireModes, get_LastFP() );
+	//PlaySound( sndFireModes, get_LastFP() );
 };
 
 void	CWeaponMagazined::OnPrevFireMode		()
@@ -1395,7 +1456,7 @@ void	CWeaponMagazined::OnPrevFireMode		()
 	if (!m_bHasDifferentFireModes) return;
 	m_iCurFireMode = (m_iCurFireMode-1+m_aFireModes.size()) % m_aFireModes.size();
 	SetQueueSize(GetCurrentFireMode());	
-	PlaySound( sndFireModes, get_LastFP() );
+	//PlaySound( sndFireModes, get_LastFP() );
 };
 
 void	CWeaponMagazined::OnH_A_Chield		()

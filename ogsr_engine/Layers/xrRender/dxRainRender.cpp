@@ -80,7 +80,7 @@ void dxRainRender::Render(CEffect_Rain &owner)
         rain_params->w = factor;
     }
     //if (rain_params->x > EPS) phase_rmap();
-    Msg("rain_params: %f, %f, %f, %f", rain_params->x, rain_params->y, rain_params->z, rain_params->w);
+    //Msg("rain_params: %f, %f, %f, %f", rain_params->x, rain_params->y, rain_params->z, rain_params->w);
 
     if (factor<EPS_L)
         return;
