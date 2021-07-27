@@ -1268,7 +1268,9 @@ BOOL CWeapon::CheckForMisfire	()
 
 	float rnd = ::Random.randF(0.f,1.f);
 	float mp = GetConditionMisfireProbability();
-	if(rnd < mp && iAmmoElapsed != 0) //--> Если в магазине 0 патронов, нехуй клинить оружию
+	if(rnd < mp && iAmmoElapsed > 1) //--> Если в магазине 0 патронов, нехуй клинить оружию
+	//Т.к. тут ЗП-стайл клин, оружейка всеравно могла заклинить при 0, несмотря на ранний фикс.
+	// Вроде теперь окончательно избавился от этой проблемы.
 	{
 		FireEnd();
 		
