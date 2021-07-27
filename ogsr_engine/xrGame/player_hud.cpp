@@ -140,7 +140,9 @@ void attachable_hud_item::set_bone_visible(const shared_str& bone_name, BOOL bVi
 	{
 		if (bSilent)
 			return;
-		FATAL("model [%s] has no bone [%s]", m_visual_name.c_str(), bone_name.c_str());
+		R_ASSERT2(0, make_string("model [%s] has no bone [%s]", pSettings->r_string(m_sect_name, "item_visual"),
+			bone_name.c_str())
+			.c_str());
 	}
 	bVisibleNow = m_model->LL_GetBoneVisible(bone_id);
 	if (bVisibleNow != bVisibility)
@@ -398,7 +400,7 @@ void attachable_hud_item::load(const shared_str& sect_name)
 
 u32 attachable_hud_item::anim_play(const shared_str& anm_name_b, BOOL bMixIn, const CMotionDef*& md, u8& rnd_idx, bool randomAnim)
 {
-	R_ASSERT(strstr(anm_name_b.c_str(), "anm_") == anm_name_b.c_str() || strstr(anm_name_b.c_str(), "anim_") == anm_name_b.c_str());
+	R_ASSERT(strstr(anm_name_b.c_str(), "anm_") == anm_name_b.c_str());
 	string256 anim_name_r;
 	bool is_16x9 = UI()->is_widescreen();
 	xr_sprintf(anim_name_r, "%s%s", anm_name_b.c_str(), ((m_attach_place_idx == 1) && is_16x9) ? "_16x9" : "");
@@ -481,12 +483,9 @@ player_hud::player_hud()
 
 player_hud::~player_hud()
 {
-	if (m_model)
-	{
-		IRenderVisual* v = m_model->dcast_RenderVisual();
-		::Render->model_Delete(v);
-		m_model = nullptr;
-	}
+    IRenderVisual* v = m_model->dcast_RenderVisual();
+    ::Render->model_Delete(v);
+    m_model = nullptr;
 
 	xr_vector<attachable_hud_item*>::iterator it = m_pool.begin();
 	xr_vector<attachable_hud_item*>::iterator it_e = m_pool.end();
