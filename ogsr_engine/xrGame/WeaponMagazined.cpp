@@ -693,7 +693,7 @@ void CWeaponMagazined::OnShot		()
 	PlayAnimShoot		();
 	
 	// Shell Drop
-	if(iAmmoElapsed != 0)
+	if(!bMisfire)
 		CheckForMisfire();
 	Fvector vel;
 	PHGetLinearVell(vel);

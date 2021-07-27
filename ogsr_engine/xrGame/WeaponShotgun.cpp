@@ -236,7 +236,6 @@ bool CWeaponShotgun::Action			(s32 cmd, u32 flags)
 		{
 			if (flags&CMD_START)
 			{
-				CheckForMisfire();
 				if (IsPending()) return false;
 				if (IsMisfire())
 				{
