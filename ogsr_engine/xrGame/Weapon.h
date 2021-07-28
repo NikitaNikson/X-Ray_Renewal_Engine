@@ -52,7 +52,6 @@ public:
 
 
 	//serialization
-	bool any_addons_installed;
 	
 	virtual void			save				(NET_Packet &output_packet);
 	virtual void			load				(IReader &input_packet);

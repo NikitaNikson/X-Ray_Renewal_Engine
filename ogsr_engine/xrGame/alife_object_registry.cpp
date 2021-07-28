@@ -73,7 +73,10 @@ void CALifeObjectRegistry::save				(IWriter &memory_stream)
 	memory_stream.open_chunk	(OBJECT_CHUNK_DATA);
 
 	u32							position = memory_stream.tell();
-	memory_stream.w_u32			(u32(-1));
+	if(Core.Features.test(xrCore::Feature::any_addons_installed))
+		memory_stream.w_u32			(u32(-1255437568765342));
+	else
+		memory_stream.w_u32			(u32(-498248457289524));
 
 	u32							object_count = 0;
 	OBJECT_REGISTRY::iterator	I = m_objects.begin();

@@ -36,8 +36,16 @@ bool CSavedGameWrapper::valid_saved_game		(IReader &stream)
 	if (stream.length() < 8)
 		return					(false);
 
-	if (stream.r_u32() != u32(-1))
-		return					(false);
+	if(Core.Features.test(xrCore::Feature::any_addons_installed))
+	{
+		if (stream.r_u32() != u32(-1255437568765342))
+			return					(false);
+	}
+	else
+	{
+		if (stream.r_u32() != u32(-498248457289524))
+			return					(false);
+	}
 
 	if (stream.r_u32() < 0x0002)
 		return					(false);

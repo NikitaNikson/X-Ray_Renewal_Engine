@@ -70,7 +70,10 @@ void CALifeStorageManager::save	(LPCSTR save_name, bool update_name)
 	string_path					temp;
 	FS.update_path				(temp,"$game_saves$",m_save_name);
 	IWriter						*writer = FS.w_open(temp);
-	writer->w_u32				(u32(-1));
+	if(Core.Features.test(xrCore::Feature::any_addons_installed))
+		writer->w_u32				(u32(-1255437568765342));
+	else
+		writer->w_u32				(u32(-498248457289524));
 	writer->w_u32				(ALIFE_VERSION);
 	
 	writer->w_u32				(source_count);
@@ -154,6 +157,20 @@ bool CALifeStorageManager::load	(LPCSTR save_name)
 	reload						(m_section);
 
 	u32							source_count = stream->r_u32();
+	
+	if(Core.Features.test(xrCore::Feature::any_addons_installed))
+	{
+		if (stream->r_u32() != u32(-1255437568765342))
+			Debug.fatal(DEBUG_INFO, "Savedgame is incompatible. PLEASE START A NEW GAME!");
+	}
+	else
+	{
+		if (stream->r_u32() != u32(-498248457289524))
+			Debug.fatal(DEBUG_INFO, "Savedgame is incompatible. PLEASE START A NEW GAME!");
+	}
+	// Дело в том, что проверка на валидность сейва завязана на скриптах, и какой нибудь умник может решить вырезать оттуда
+	// эту проверку. Это позволит избежать этого
+	
 	void						*source_data = xr_malloc(source_count);
 	rtc_decompress				(source_data,source_count,stream->pointer(),stream->length() - 3*sizeof(u32));
 	FS.r_close					(stream);

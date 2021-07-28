@@ -704,10 +704,6 @@ void CWeapon::save(NET_Packet &output_packet)
 {
 	inherited::save	(output_packet);
 
-	// Пробуем новую систему сохранений
-	any_addons_installed = Core.Features.test(xrCore::Feature::any_addons_installed) ? true : false;
-	save_data		(any_addons_installed,	output_packet);
-	
 	save_data		(iAmmoElapsed,			output_packet);
 	save_data		(m_flagsAddOnState, 	output_packet);
 	save_data		(m_ammoType,			output_packet);
@@ -718,12 +714,7 @@ void CWeapon::save(NET_Packet &output_packet)
 void CWeapon::load(IReader &input_packet)
 {
 	inherited::load	(input_packet);
-	
-	// Пробуем новую систему сохранений
-	load_data		(any_addons_installed,		input_packet);
-	if((Core.Features.test(xrCore::Feature::any_addons_installed) && !any_addons_installed) || (any_addons_installed && !Core.Features.test(xrCore::Feature::any_addons_installed)))
-		Debug.fatal(DEBUG_INFO, "Sorry, but you can't use this savedgame.");
-	
+
 	load_data		(iAmmoElapsed,				input_packet);
 	load_data		(m_flagsAddOnState, 		input_packet);
 	UpdateAddonsVisibility	();
