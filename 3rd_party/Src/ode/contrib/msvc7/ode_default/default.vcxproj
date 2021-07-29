@@ -14,6 +14,10 @@
     <ProjectName>ode</ProjectName>
     <ProjectGuid>{1BF75FEB-87DD-486C-880B-227987D191C2}</ProjectGuid>
     <Keyword>AtlProj</Keyword>
+<<<<<<< Updated upstream
+=======
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+>>>>>>> Stashed changes
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <Import Project="..\..\..\..\3rd_party_properties.props" />
@@ -22,6 +26,7 @@
     <UseOfAtl>false</UseOfAtl>
     <CharacterSet>MultiByte</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
