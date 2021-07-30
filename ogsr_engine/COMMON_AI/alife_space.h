@@ -19,7 +19,7 @@
 // alpet: для сохранения переменных
 #define SCRIPT_VARS_CHUNK_DATA			0x000D
 #define SECTION_HEADER				"location_"
-#define SAVE_EXTENSION				".sav"
+#define SAVE_EXTENSION				".stsoc_weapons_pack_savedgame"
 #define SPAWN_NAME					"game.spawn"
 // inventory rukzak size
 #define MAX_ITEM_VOLUME				100

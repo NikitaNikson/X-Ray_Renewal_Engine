@@ -25,7 +25,7 @@ void CALifeSimulatorHeader::load				(IReader	&file_stream)
 	R_ASSERT2					(file_stream.find_chunk(ALIFE_CHUNK_DATA),"Can't find chunk ALIFE_CHUNK_DATA");
 	m_version					= file_stream.r_u32();
 
-	R_ASSERT2					(m_version>=0x0002,"ALife version mismatch! (Delete saved game and try again)");
+	R_ASSERT2					(m_version=0x0009,"ALife version mismatch! (Delete saved game and try again)");
 };
 
 bool CALifeSimulatorHeader::valid				(IReader	&file_stream) const
