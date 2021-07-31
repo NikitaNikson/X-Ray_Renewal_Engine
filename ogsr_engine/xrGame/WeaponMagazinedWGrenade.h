@@ -23,6 +23,8 @@ public:
 	virtual void	net_Import			(NET_Packet& P);
 
 	virtual void	OnDrawUI();
+	virtual	void	OnNextFireMode		();
+	virtual	void	OnPrevFireMode		();
 	virtual void	net_Relcase(CObject *object);
 	
 	virtual void	OnH_B_Independent	(bool just_before_destroy);
@@ -66,7 +68,7 @@ public:
 	virtual void	PlayAnimHide	();
 	virtual void	PlayAnimReload	();
 	virtual void	PlayAnimIdle	();
-	//virtual void	switch2_ChangeFireMode		();
+	//virtual void	PlayAnimFireMode();
 	virtual void	PlayAnimShoot	();
 	virtual void	PlayAnimModeSwitch();
 	
