@@ -530,14 +530,30 @@ void CWeapon::Load		(LPCSTR section)
 	m_strafe_offset[0][1] = READ_IF_EXISTS(pSettings, r_fvector3, section, xr_strconcat(val_name, "strafe_aim_hud_offset_pos", _prefix), Fvector().set(0.005f, 0.f, 0.f));
 	m_strafe_offset[1][1] = READ_IF_EXISTS(pSettings, r_fvector3, section, xr_strconcat(val_name, "strafe_aim_hud_offset_rot", _prefix), Fvector().set(0.f, 0.f, 2.5f));
 
+	// Смещение при движении вперёд/назад
+	m_longitudinal_offset[0] = READ_IF_EXISTS(pSettings, r_float, section, xr_strconcat(val_name, "longitudinal_hud_offset", _prefix), READ_IF_EXISTS(pSettings, r_float, "features", "default_longitudinal_hud_offset", 0.02f));
+	m_longitudinal_offset[1] = READ_IF_EXISTS(pSettings, r_float, section, xr_strconcat(val_name, "longitudinal_hud_offset_aim", _prefix), m_longitudinal_offset[0]);
+
 	// Параметры стрейфа
 	float fFullStrafeTime     = READ_IF_EXISTS(pSettings, r_float, section, "strafe_transition_time", 0.25f);
 	float fFullStrafeTime_aim = READ_IF_EXISTS(pSettings, r_float, section, "strafe_aim_transition_time", 0.15f);
 	bool bStrafeEnabled       = READ_IF_EXISTS(pSettings, r_bool, section, "strafe_enabled", READ_IF_EXISTS(pSettings, r_bool, "features", "default_strafe_enabled", true));
 	bool bStrafeEnabled_aim   = READ_IF_EXISTS(pSettings, r_bool, section, "strafe_aim_enabled", false);
 
+	// Параметры движения вперёд/назад
+	float fFullLongitudinalTime = READ_IF_EXISTS(pSettings, r_float, section, "longitudinal_transition_time", 0.18f);
+	float fFullLongitudinalTime_aim = READ_IF_EXISTS(pSettings, r_float, section, "longitudinal_transition_time_aim", fFullLongitudinalTime);
+	bool bLongitudinalOffsetEnabled = READ_IF_EXISTS(pSettings, r_bool, section, "longitudinal_offset_enabled",
+		READ_IF_EXISTS(pSettings, r_bool, "features", "default_longitudinal_offset_enabled", true));
+	bool bLongitudinalOffsetEnabled_aim = READ_IF_EXISTS(pSettings, r_bool, section, "longitudinal_offset_aim_enabled", bLongitudinalOffsetEnabled);
+
 	m_strafe_offset[2][0].set(bStrafeEnabled, fFullStrafeTime, 0.f); // normal
 	m_strafe_offset[2][1].set(bStrafeEnabled_aim, fFullStrafeTime_aim, 0.f); // aim-GL
+
+	m_longitudinal_offset[2] = fFullLongitudinalTime;
+	m_longitudinal_offset[3] = fFullLongitudinalTime_aim;
+	m_longitudinal_offset[4] = bLongitudinalOffsetEnabled;
+	m_longitudinal_offset[5] = bLongitudinalOffsetEnabled_aim;
 	//--#SM+# End--
 	////////////////////////////////////////////
 }
@@ -1789,7 +1805,12 @@ void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
 	if (fStrafeMaxTime <= EPS)
 		fStrafeMaxTime = 0.01f;
 
+	float fLongitudinalMaxTime = m_longitudinal_offset[2 + idx];
+	if (fLongitudinalMaxTime <= EPS)
+		fLongitudinalMaxTime = 0.01f;
+
 	float fStepPerUpd = Device.fTimeDelta / fStrafeMaxTime; // Величина изменение фактора поворота
+	float fStepPerUpdLongitudinal = Device.fTimeDelta / fLongitudinalMaxTime; // ^ смещения при передвижении вперёд/назад
 
     // Добавляем боковой наклон от движения камеры
     float fCamReturnSpeedMod = 1.5f; // Восколько ускоряем нормализацию наклона, полученного от движения камеры (только от бедра)
@@ -1843,8 +1864,34 @@ void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
 			clamp(m_fLR_MovingFactor, 0.0f, 1.0f);
 		}
 	}
+	if ((iMovingState & mcBack) != 0)
+	{
+		// Движемся назад
+		float fVal = m_fFB_MovingFactor < 0.0f ? fStepPerUpdLongitudinal * 3 : fStepPerUpdLongitudinal;
+		m_fFB_MovingFactor += fVal;
+	}
+	else if ((iMovingState & mcFwd) != 0)
+	{
+		// Движемся вперёд
+		float fVal = m_fFB_MovingFactor > 0.0f ? fStepPerUpdLongitudinal * 3 : fStepPerUpdLongitudinal;
+		m_fFB_MovingFactor -= fVal;
+	}
+	else
+	{
+		if (m_fFB_MovingFactor < 0.0f)
+		{
+			m_fFB_MovingFactor += fStepPerUpdLongitudinal;
+			clamp(m_fFB_MovingFactor, -1.0f, 0.0f);
+		}
+		else
+		{
+			m_fFB_MovingFactor -= fStepPerUpdLongitudinal;
+			clamp(m_fFB_MovingFactor, 0.0f, 1.0f);
+		}
+	}
 
 	clamp(m_fLR_MovingFactor, -1.0f, 1.0f); // Фактор боковой ходьбы не должен превышать эти лимиты
+	clamp(m_fFB_MovingFactor, -1.0f, 1.0f); // ^   *вперёд/назад*
 
     // Вычисляем и нормализируем итоговый фактор наклона
     float fLR_Factor = m_fLR_MovingFactor + m_fLR_CameraFactor;
@@ -1985,6 +2032,22 @@ void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
         hud_rotation.translate_over(curr_offs);
         trans.mulB_43(hud_rotation);
     }
+	
+	// Смещение худа при движении вперёд/назад
+	for (int i = 0; i <= 1; i++)
+	{
+		bool bEnabled = m_longitudinal_offset[4 + idx];
+		if (!bEnabled)
+			continue;
+		float curr_offs;
+		curr_offs = m_longitudinal_offset[idx];
+		curr_offs *= m_fFB_MovingFactor;
+
+		Fmatrix hud_position;
+
+		hud_position.translate(0.0f, 0.0f, curr_offs);
+		trans.mulB_43(hud_position);
+	}
 }
 
 // Добавить эффект сдвига оружия от выстрела
