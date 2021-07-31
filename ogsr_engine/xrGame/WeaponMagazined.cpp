@@ -805,9 +805,9 @@ void CWeaponMagazined::switch2_ChangeFireMode()
 void CWeaponMagazined::PlayAnimFireMode()
 {
 	if(IsGrenadeLauncherAttached())
-		PlayHUDMotion("anm_changefiremode", FALSE, this, GetState());
+		PlayHUDMotion("anm_changefiremode_w_gl", true, this, GetState());
 	else
-		PlayHUDMotion("anm_changefiremode", false, nullptr, GetState());
+		PlayHUDMotion("anm_changefiremode", true, this, GetState());
 }
 
 #ifdef DEBUG
@@ -951,32 +951,16 @@ bool CWeaponMagazined::Action(s32 cmd, u32 flags)
 		{
 			if(flags&CMD_START) 
 			{
-				/*if(AnimationExist("anm_changefiremode"))
-				{
-					SwitchState(eWPN_FIREMODE_PREV);
-					return true;
-				}
-				else
-				{*/
-					OnPrevFireMode();
-					return true;
-				//}
+				OnPrevFireMode();
+				return true;
 			};
 		}break;
 	case kWPN_FIREMODE_NEXT:
 		{
 			if(flags&CMD_START) 
 			{
-				/*if(AnimationExist("anm_changefiremode"))
-				{
-					SwitchState(eWPN_FIREMODE_NEXT);
-					return true;
-				}
-				else
-				{*/
-					OnNextFireMode();
-					return true;
-				//}
+				OnNextFireMode();
+				return true;
 			};
 		}break;
 	}
@@ -1456,7 +1440,6 @@ void	CWeaponMagazined::OnNextFireMode		()
 		SwitchState(eWPN_FIREMODE_PREV);
 	m_iCurFireMode = (m_iCurFireMode+1+m_aFireModes.size()) % m_aFireModes.size();
 	SetQueueSize(GetCurrentFireMode());
-	//PlaySound( sndFireModes, get_LastFP() );
 };
 
 void	CWeaponMagazined::OnPrevFireMode		()
@@ -1466,7 +1449,6 @@ void	CWeaponMagazined::OnPrevFireMode		()
 		SwitchState(eWPN_FIREMODE_PREV);
 	m_iCurFireMode = (m_iCurFireMode-1+m_aFireModes.size()) % m_aFireModes.size();
 	SetQueueSize(GetCurrentFireMode());	
-	//PlaySound( sndFireModes, get_LastFP() );
 };
 
 void	CWeaponMagazined::OnH_A_Chield		()
@@ -1507,7 +1489,6 @@ void CWeaponMagazined::save(NET_Packet &output_packet)
 	save_data		(m_iQueueSize, output_packet);
 	save_data		(m_iShotNum, output_packet);
 	save_data		(m_iCurFireMode, output_packet);
-//	save_data		(isMisfire(), output_packet);
 }
 
 void CWeaponMagazined::load(IReader &input_packet)
@@ -1516,7 +1497,6 @@ void CWeaponMagazined::load(IReader &input_packet)
 	load_data		(m_iQueueSize, input_packet);SetQueueSize(m_iQueueSize);
 	load_data		(m_iShotNum, input_packet);
 	load_data		(m_iCurFireMode, input_packet);
-//	load_data		(isMisfire(), input_packet);
 }
 
 void CWeaponMagazined::net_Export	(NET_Packet& P)

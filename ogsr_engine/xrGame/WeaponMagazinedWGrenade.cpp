@@ -189,21 +189,6 @@ void CWeaponMagazinedWGrenade::switch2_Reload()
 	     inherited::switch2_Reload();
 }
 
-/*void CWeaponMagazinedWGrenade::switch2_ChangeFireMode		()
-{
-	//if (GetState() != eWPN_FIREMODE_NEXT && GetState() != eWPN_FIREMODE_PREV)
-		//return;
-
-	FireEnd();
-	OnEmptyClick();
-	if(IsGrenadeLauncherAttached())
-		PlayHUDMotion("anm_changefiremode_w_gl", false, nullptr, GetState());
-	else
-		inherited::switch2_ChangeFireMode();
-
-	SetPending(TRUE);
-}*/
-
 void CWeaponMagazinedWGrenade::OnShot		()
 {
 	if(m_bGrenadeMode)
@@ -701,6 +686,8 @@ void CWeaponMagazinedWGrenade::PlayAnimReload()
 void CWeaponMagazinedWGrenade::PlayAnimIdle()
 {
 	VERIFY(GetState() == eIdle);
+	if(GetState() != eIdle)
+		return;
 
 	if (IsGrenadeLauncherAttached())
 	{
