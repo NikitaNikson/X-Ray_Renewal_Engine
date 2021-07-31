@@ -112,47 +112,7 @@ void CWeaponPistol::PlayAnimReload()
 	}
 	else if (m_opened)
 		PlayHUDMotion("anm_reload_empty", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 20 && AnimationExist("anm_reload_20"))
-		PlayHUDMotion("anm_reload_20", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 19 && AnimationExist("anm_reload_19"))
-		PlayHUDMotion("anm_reload_19", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 18 && AnimationExist("anm_reload_18"))
-		PlayHUDMotion("anm_reload_18", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 17 && AnimationExist("anm_reload_17"))
-		PlayHUDMotion("anm_reload_17", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 16 && AnimationExist("anm_reload_16"))
-		PlayHUDMotion("anm_reload_16", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 15 && AnimationExist("anm_reload_15"))
-		PlayHUDMotion("anm_reload_15", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 14 && AnimationExist("anm_reload_14"))
-		PlayHUDMotion("anm_reload_14", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 13 && AnimationExist("anm_reload_13"))
-		PlayHUDMotion("anm_reload_13", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 12 && AnimationExist("anm_reload_12"))
-		PlayHUDMotion("anm_reload_12", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 11 && AnimationExist("anm_reload_11"))
-		PlayHUDMotion("anm_reload_11", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 10 && AnimationExist("anm_reload_10"))
-		PlayHUDMotion("anm_reload_10", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 9 && AnimationExist("anm_reload_9"))
-		PlayHUDMotion("anm_reload_9", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 8 && AnimationExist("anm_reload_8"))
-		PlayHUDMotion("anm_reload_8", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 7 && AnimationExist("anm_reload_7"))
-		PlayHUDMotion("anm_reload_7", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 6 && AnimationExist("anm_reload_6"))
-		PlayHUDMotion("anm_reload_6", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 5 && AnimationExist("anm_reload_5"))
-		PlayHUDMotion("anm_reload_19", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 4 && AnimationExist("anm_reload_4"))
-		PlayHUDMotion("anm_reload_4", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 3 && AnimationExist("anm_reload_3"))
-		PlayHUDMotion("anm_reload_19", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 2 && AnimationExist("anm_reload_2"))
-		PlayHUDMotion("anm_reload_2", TRUE, nullptr, GetState());
-	else if (iAmmoElapsed == 1 && AnimationExist("anm_reload_1"))
-		PlayHUDMotion("anm_reload_1", TRUE, nullptr, GetState());
-	else
+	else 
 		inherited::PlayAnimReload();
 	m_opened = false;
 }

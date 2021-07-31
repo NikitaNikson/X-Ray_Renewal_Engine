@@ -174,7 +174,6 @@ public:
 	virtual void	OnZoomChanged		();
 	virtual	void	OnNextFireMode		();
 	virtual	void	OnPrevFireMode		();
-	bool CanFire;
 	virtual bool	HasFireModes		() { return m_bHasDifferentFireModes; };
 	virtual	int		GetCurrentFireMode	() { return m_bHasDifferentFireModes ? m_aFireModes[m_iCurFireMode] : 1; };
 	virtual LPCSTR	GetCurrentFireModeStr	() {return m_sCurFireMode;};

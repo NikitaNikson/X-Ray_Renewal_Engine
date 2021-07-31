@@ -130,8 +130,6 @@ public:
 		eUnJam,
 		eWPN_FIREMODE_PREV,
 		eWPN_FIREMODE_NEXT,
-		eWPN_FIREMODE,
-		eWPN_FIREMODE_GL,
 	};
 	enum EWeaponSubStates{
 		eSubstateReloadBegin		=0,

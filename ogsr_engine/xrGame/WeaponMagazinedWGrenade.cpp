@@ -104,46 +104,6 @@ void CWeaponMagazinedWGrenade::OnDrawUI()
 	inherited::OnDrawUI();
 }
 
-#include "inventory.h"
-void	CWeaponMagazinedWGrenade::OnNextFireMode		()
-{
-	if(IsGrenadeLauncherAttached())
-	{
-		if (!m_bHasDifferentFireModes) return;
-		FireEnd();
-		PlaySound( sndFireModes, get_LastFP() );
-		if(AnimationExist("anm_changefiremode"))
-		{
-			CanFire = false;
-			SwitchState(eIdle);
-			//PlayHUDMotion("anm_changefiremode_w_gl", true, this, eIdle);
-		}
-		m_iCurFireMode = (m_iCurFireMode+1+m_aFireModes.size()) % m_aFireModes.size();
-		SetQueueSize(GetCurrentFireMode());
-	}
-	else
-		inherited::OnNextFireMode();
-};
-
-void	CWeaponMagazinedWGrenade::OnPrevFireMode		()
-{
-	if(IsGrenadeLauncherAttached())
-	{
-		if (!m_bHasDifferentFireModes) return;
-		FireEnd();
-		PlaySound( sndFireModes, get_LastFP() );
-		if(AnimationExist("anm_changefiremode"))
-		{
-			CanFire = false;
-			SwitchState(eIdle);
-			//PlayHUDMotion("anm_changefiremode_w_gl", true, this, eIdle);
-		}
-		m_iCurFireMode = (m_iCurFireMode-1+m_aFireModes.size()) % m_aFireModes.size();
-		SetQueueSize(GetCurrentFireMode());	
-	}
-	else
-		inherited::OnPrevFireMode();
-};
 
 BOOL CWeaponMagazinedWGrenade::net_Spawn(CSE_Abstract* DC) 
 {
@@ -753,17 +713,11 @@ void CWeaponMagazinedWGrenade::PlayAnimIdle()
 		}
 		else
 		{
-			if(CanFire)
-				if (IsZoomed())
-					PlayHUDMotion("anm_idle_w_gl_aim", /*FALSE*/TRUE, nullptr, GetState());
-				else
-					PlayHUDMotion("anm_idle_w_gl", /*FALSE*/TRUE, nullptr, GetState());
+			if (IsZoomed())
+				PlayHUDMotion("anm_idle_w_gl_aim", /*FALSE*/TRUE, nullptr, GetState());
 			else
-			{
-				PlayHUDMotion("anm_changefiremode_w_gl", TRUE, nullptr, GetState());
-				return;
-			}
-			
+				PlayHUDMotion("anm_idle_w_gl", /*FALSE*/TRUE, nullptr, GetState());
+
 		}
 
 		if (IsZoomed())
@@ -844,18 +798,6 @@ void CWeaponMagazinedWGrenade::PlayAnimIdle()
 	else
 		inherited::PlayAnimIdle();
 }
-
-/*void CWeaponMagazinedWGrenade::PlayAnimFireMode()
-{
-	VERIFY(GetState() == eWPN_FIREMODE_NEXT || GetState() == eWPN_FIREMODE_PREV);
-	if(m_bGrenadeMode)
-		return;
-	
-	if(IsGrenadeLauncherAttached())
-		PlayHUDMotion("anm_changefiremode_w_gl", FALSE, nullptr, GetState());
-	else
-		inherited::PlayAnimFireMode();
-}*/
 
 void CWeaponMagazinedWGrenade::PlayAnimShoot()
 {
