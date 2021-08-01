@@ -1915,16 +1915,16 @@ void CWeapon::UpdateHudAdditonal		(Fmatrix& trans)
         curr_rot.mul(-PI / 180.f); // Преобразуем углы в радианы
         curr_rot.mul(fLR_Factor); // Умножаем на фактор стрейфа
 
-		if (_idx == 0)
-		{ // От бедра
-			curr_offs.mul(1.f - m_fZoomRotationFactor);
-			curr_rot.mul(1.f - m_fZoomRotationFactor);
-		}
-		else
-		{ // Во время аима
-			curr_offs.mul(m_fZoomRotationFactor);
-			curr_rot.mul(m_fZoomRotationFactor);
-		}
+		//if (_idx == 0)
+		//{ // От бедра
+			curr_offs.mul(1.f); //- m_fZoomRotationFactor);
+			curr_rot.mul(1.f);// - m_fZoomRotationFactor);
+		//}
+		//else
+		//{ // Во время аима
+			//curr_offs.mul(m_fZoomRotationFactor);
+			//curr_rot.mul(m_fZoomRotationFactor);
+		//}
 
 		Fmatrix hud_rotation;
 		Fmatrix hud_rotation_y;
