@@ -328,7 +328,11 @@ void CRenderDevice::Run			()
 {
 //	DUMP_PHASE;
 	g_bLoaded		= FALSE;
-	Log				("Starting engine...");
+	Log				("		X-Ray Renewal Engine		");
+	Log				("		Based on OGSR-Engine		");
+	Log				("		https://github.com/OGSR/OGSR-Engine			");
+	Log				("									");
+	Log				("			Starting...				");
 	
 	bool any_addons_installed = Core.Features.test(xrCore::Feature::any_addons_installed) ? true : false;
 	if (any_addons_installed)
