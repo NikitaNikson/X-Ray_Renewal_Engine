@@ -190,7 +190,7 @@
       <DisableSpecificWarnings>4456;4457;4458;4995;4577;4315;</DisableSpecificWarnings>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>xrEngine.lib;d3dx9.lib;d3dx11.lib;d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>xrRenewal.lib;d3dx9.lib;d3dx11.lib;d3d11.lib;d3dcompiler.lib;dxgi.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <MapFileName>
       </MapFileName>
       <SubSystem>Windows</SubSystem>

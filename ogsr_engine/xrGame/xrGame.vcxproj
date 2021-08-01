@@ -256,7 +256,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
-      <AdditionalDependencies>xrEngine.lib;ode.lib;xrRender_R2.lib;xrRender_R3.lib;xrRender_R4.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>xrRenewal.lib;ode.lib;xrRender_R2.lib;xrRender_R3.lib;xrRender_R4.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
